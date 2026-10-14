@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-First release. Everything below is verified by the test suite; no real LLM has been run.
+First release. Everything below is verified by the test suite (run on Python 3.10, 3.11, 3.12 and 3.13); no real LLM has been run.
 
 ### Core
 * `Environment` and `Agent` protocols, a seeded and budgeted trial runner (steps, tokens, wall clock),

@@ -280,7 +280,7 @@ solvable-versus-unsolvable slices.
 * Wrappers (`+naive`, `+inject=...`, `+fault=...`) compose by name in the environment spec.
 * Result files are plain JSON ([schema notes](docs/METHODOLOGY.md#10-result-files-and-the-leaderboard)); reports and
   the leaderboard are rendered from them only.
-* Core uses only the standard library.
+* Core uses only the standard library. numpy is not used anywhere (the bootstrap is plain `random`).
 
 ## Repository map
 

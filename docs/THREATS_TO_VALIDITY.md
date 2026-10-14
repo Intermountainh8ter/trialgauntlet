@@ -73,8 +73,9 @@ What the numbers in this repository can and cannot support. Read this before quo
 * **The mock server tests plumbing only.** Its oracle mode replays the scripted oracle over the transcript;
   a 100% score through it says the HTTP, parsing and history handling work, not that any model can do the
   task. Its flaky mode creates a pass@1 versus pass^k gap by construction.
-* **Python versions.** Result files were verified byte-identical on Python 3.11, 3.12 and 3.13 on one
-  machine. 3.10 is exercised by CI configuration only and was not run for this release.
+* **Python versions.** The full test suite (which includes a byte-for-byte comparison of the committed result
+  files with fresh output) passed on Python 3.10.20, 3.11.17, 3.12.3 and 3.13.16 on one Linux machine. Other
+  platforms were not tried.
 
 ## Injection and fault suites
 

@@ -56,3 +56,21 @@ def test_gitignore_excludes_local_runs():
 def test_core_has_no_runtime_dependencies():
     text = (ROOT / "pyproject.toml").read_text()
     assert "dependencies = []" in text
+
+
+def test_runtime_code_imports_only_the_standard_library():
+    """No third-party import anywhere under src (numpy included): the runtime has no dependencies."""
+    import ast
+    import sys
+
+    stdlib = set(sys.stdlib_module_names) if hasattr(sys, "stdlib_module_names") else None
+    for path in (ROOT / "src" / "trialgauntlet").rglob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text())):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [a.name.split(".")[0] for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                names = [node.module.split(".")[0]]
+            for name in names:
+                assert name == "trialgauntlet" or stdlib is None or name in stdlib, f"{path.name} imports {name}"
+                assert name != "numpy"

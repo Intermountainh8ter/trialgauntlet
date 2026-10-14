@@ -76,3 +76,30 @@ def test_regenerate_script_is_executable_and_lists_every_result_file():
         assert needle in text
     assert subprocess.run(["bash", "-n", str(script)], check=False).returncode == 0
     assert sys.executable
+
+
+def test_llm_block_is_a_skeleton_without_real_results_and_a_table_with_them(tmp_path):
+    import copy
+
+    base = load_results(ROOT / "results" / "baseline-oracle.json")
+    from trialgauntlet.results import write_results
+
+    write_results(tmp_path / "b.json", base)
+    skeleton = docgen.llm_block(tmp_path)
+    assert skeleton.startswith("**LLM results: NOT YET RUN.**") and skeleton.count("NOT YET RUN |") >= 3
+    mock = copy.deepcopy(base)
+    mock["agent"] = {"name": "example-model", "id": "x", "type": "llm", "model": "example-model", "config": {}}
+    mock["label"] = "MOCK"
+    write_results(tmp_path / "mock.json", mock)
+    assert docgen.llm_block(tmp_path).startswith("**LLM results: NOT YET RUN.**"), "MOCK runs never count"
+    real = copy.deepcopy(mock)
+    real["label"] = "REAL"  # fixture: rendering path only
+    write_results(tmp_path / "real.json", real)
+    table = docgen.llm_block(tmp_path)
+    assert "NOT YET RUN" not in table and "example-model" in table and "| fleet |" in table
+
+
+def test_facts_block_reports_task_counts():
+    text = docgen.facts_block()
+    assert "`fleet`: 52 tasks" in text and "`ledger`: 42 tasks" in text and "`config`: 44 tasks" in text
+    assert "138 task seeds" in text
