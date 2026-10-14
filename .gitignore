@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+node_modules/
+# local run output (trajectories). Aggregated result files live in results/*.json.
+runs/
+report/
+.env

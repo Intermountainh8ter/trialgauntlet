@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trialgauntlet"
+version = "0.1.0"
+description = "A tiny, deterministic, dependency-free agent reliability harness: pass^k next to pass@k, a degenerate-success audit, injection and fault suites."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Ammon Jackson" }]
+dependencies = []
+keywords = ["agents", "evaluation", "reliability", "pass-k", "benchmark", "tool-use", "prompt-injection"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Testing",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5"]
+
+[project.scripts]
+trialgauntlet = "trialgauntlet.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.coverage.run]
+source = ["trialgauntlet"]
+branch = true
+
+[tool.coverage.report]
+show_missing = false
+skip_covered = false
+precision = 1
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = ["results", "runs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM"]
+ignore = ["SIM108", "B905", "UP007", "UP045"]
