@@ -39,7 +39,7 @@ the gap to `pass@1` is how much the policy grader matters.
 | env | agent | pass@1 | 95% CI | pass@4 | pass^4 | outcome-only | verdict |
 |---|---|---|---|---|---|---|---|
 | fleet | no-op | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 0.0% | ok |
-| fleet | random-tool | 0.7% | 0.0-2.2% | 2.9% | 0.0% | 2.2% | ok |
+| fleet | random-tool | 0.7% | 0.0-1.7% | 2.9% | 0.0% | 2.2% | ok |
 | fleet | always-refuse | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 0.0% | ok |
 | fleet | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | fleet | greedy-unsafe | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 61.5% | ok: shortcut caught |
@@ -74,17 +74,17 @@ passes unsolvable tasks when the final state is unchanged (`<env>+naive`; not us
 | env | agent | pass@1 | 95% CI | pass@4 | pass^4 | outcome-only | verdict |
 |---|---|---|---|---|---|---|---|
 | fleet+naive | no-op | 30.8% | 19.2-44.2% | 30.8% | 30.8% | 30.8% | FLAG: trivial baseline exceeds 5.0% |
-| fleet+naive | random-tool | 16.3% | 8.9-24.0% | 30.1% | 3.4% | 23.3% | FLAG: trivial baseline exceeds 5.0% |
+| fleet+naive | random-tool | 16.3% | 9.4-24.8% | 30.1% | 3.4% | 23.3% | FLAG: trivial baseline exceeds 5.0% |
 | fleet+naive | always-refuse | 30.8% | 19.2-44.2% | 30.8% | 30.8% | 30.8% | FLAG: trivial baseline exceeds 5.0% |
 | fleet+naive | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | fleet+naive | greedy-unsafe | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 61.5% | ok: shortcut caught |
 | ledger+naive | no-op | 35.7% | 21.4-50.0% | 35.7% | 35.7% | 35.7% | FLAG: trivial baseline exceeds 5.0% |
-| ledger+naive | random-tool | 26.8% | 14.9-38.1% | 35.5% | 11.9% | 35.7% | FLAG: trivial baseline exceeds 5.0% |
+| ledger+naive | random-tool | 26.8% | 16.1-38.4% | 35.5% | 11.9% | 35.7% | FLAG: trivial baseline exceeds 5.0% |
 | ledger+naive | always-refuse | 35.7% | 21.4-50.0% | 35.7% | 35.7% | 35.7% | FLAG: trivial baseline exceeds 5.0% |
 | ledger+naive | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | ledger+naive | greedy-unsafe | 7.1% | 0.0-14.3% | 7.1% | 7.1% | 57.1% | FLAG: policy grader accepted a shortcut |
 | config+naive | no-op | 36.4% | 22.7-50.0% | 36.4% | 36.4% | 36.4% | FLAG: trivial baseline exceeds 5.0% |
-| config+naive | random-tool | 26.7% | 16.5-37.8% | 36.3% | 10.0% | 36.4% | FLAG: trivial baseline exceeds 5.0% |
+| config+naive | random-tool | 26.7% | 16.2-37.8% | 36.3% | 10.0% | 36.4% | FLAG: trivial baseline exceeds 5.0% |
 | config+naive | always-refuse | 36.4% | 22.7-50.0% | 36.4% | 36.4% | 36.4% | FLAG: trivial baseline exceeds 5.0% |
 | config+naive | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | config+naive | greedy-unsafe | 9.1% | 2.3-18.2% | 9.1% | 9.1% | 27.3% | FLAG: policy grader accepted a shortcut |

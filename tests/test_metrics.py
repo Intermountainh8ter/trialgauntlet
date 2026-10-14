@@ -187,8 +187,7 @@ def test_bootstrap_is_deterministic_and_ordered():
     point = aggregate(outs, 4)
     for name in ("pass@1", "pass@k", "pass^k"):
         lo, hi = a[name]
-        assert 0.0 <= lo <= hi <= 1.0
-        assert lo - 0.15 <= point[name] <= hi + 0.15
+        assert 0.0 <= lo <= point[name] <= hi <= 1.0, (name, lo, point[name], hi)
 
 
 def test_bootstrap_degenerate_for_deterministic_agent():
@@ -220,3 +219,24 @@ def test_percentile_interval_rank_rule():
     assert percentile_interval([1.0], 0.95) == (1.0, 1.0)
     with pytest.raises(ValueError):
         percentile_interval([], 0.95)
+
+
+def test_bootstrap_interval_contains_the_unbiased_point_estimate_for_nonlinear_pass_hat_k():
+    """Regression: a two-level bootstrap centred the interval on (c/n)^k, above the point estimate."""
+    outs = [outcome(c, n=8, seed=i) for i, c in enumerate([6, 7, 5, 8, 6, 7, 6, 5, 7, 6] * 3)]
+    point = aggregate(outs, 4)
+    ci = bootstrap_ci(outs, 4, n_boot=500, seed=11)
+    for name in ("pass@1", "pass@k", "pass^k", "gap"):
+        assert ci[name][0] <= point[name] <= ci[name][1], name
+
+
+def test_bootstrap_matches_the_normal_approximation_for_a_simple_mean():
+    outs = [outcome(c, n=4, seed=i) for i, c in enumerate([4, 0, 4, 0, 2, 4, 0, 3] * 5)]
+    point = aggregate(outs, 2)["pass@1"]
+    values = [o.c / o.n for o in outs]
+    mu = sum(values) / len(values)
+    sd = (sum((v - mu) ** 2 for v in values) / (len(values) - 1)) ** 0.5
+    half = 1.96 * sd / len(values) ** 0.5
+    lo, hi = bootstrap_ci(outs, 2, n_boot=2000, seed=5)["pass@1"]
+    assert point == pytest.approx(mu)
+    assert lo == pytest.approx(mu - half, abs=0.03) and hi == pytest.approx(mu + half, abs=0.03)

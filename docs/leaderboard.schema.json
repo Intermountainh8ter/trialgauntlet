@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "trialgauntlet.leaderboard/1",
+  "title": "trialgauntlet leaderboard",
+  "description": "Flat list of (agent, environment) entries built by `trialgauntlet leaderboard` from results/*.json. MOCK entries are excluded unless --include-mock is given.",
+  "type": "object",
+  "required": [
+    "schema",
+    "entries"
+  ],
+  "properties": {
+    "schema": {
+      "const": "trialgauntlet.leaderboard/1"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agent",
+          "type",
+          "label",
+          "mock",
+          "environment",
+          "spec",
+          "tasks",
+          "n",
+          "k",
+          "pass@1",
+          "pass@1_ci",
+          "pass@k",
+          "pass^k",
+          "pass^k_ci",
+          "gap",
+          "outcome_only",
+          "violation_rate",
+          "mean_tool_misuse",
+          "mean_steps",
+          "mean_tokens",
+          "cost_usd",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "agent": {
+            "type": "string",
+            "description": "model name or baseline agent name"
+          },
+          "type": {
+            "enum": [
+              "llm",
+              "baseline"
+            ]
+          },
+          "label": {
+            "enum": [
+              "REAL",
+              "MOCK",
+              "BASELINE"
+            ],
+            "description": "REAL: real model server; MOCK: built-in mock server (plumbing only); BASELINE: scripted non-LLM agent"
+          },
+          "mock": {
+            "type": "boolean",
+            "description": "true exactly when label is MOCK"
+          },
+          "environment": {
+            "type": "string",
+            "description": "base environment name"
+          },
+          "spec": {
+            "type": "string",
+            "description": "full environment spec, e.g. fleet+fault=mixed:0.3"
+          },
+          "tasks": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "trials per task (minimum when uneven)"
+          },
+          "k": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "k used for pass@k and pass^k; never greater than n"
+          },
+          "pass@1": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pass@1_ci": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "pass@k": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pass^k": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pass^k_ci": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "gap": {
+            "type": "number",
+            "description": "pass@1 minus pass^k"
+          },
+          "outcome_only": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "success rate ignoring policy violations"
+          },
+          "violation_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "fraction of trials with at least one policy violation"
+          },
+          "mean_tool_misuse": {
+            "type": "number",
+            "minimum": 0
+          },
+          "mean_steps": {
+            "type": "number",
+            "minimum": 0
+          },
+          "mean_tokens": {
+            "type": "number",
+            "minimum": 0
+          },
+          "cost_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "source": {
+            "type": "string",
+            "description": "results file the entry was built from"
+          }
+        }
+      }
+    }
+  }
+}

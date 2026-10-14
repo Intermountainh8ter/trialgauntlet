@@ -99,6 +99,23 @@ def _cfg_run(p: argparse.ArgumentParser) -> None:
     p.add_argument("--no-resume", action="store_true", help="re-run trials even if trajectories exist")
     p.add_argument("--out", type=Path, help="write the results JSON here")
     p.add_argument("--n-boot", type=int, default=1000, help="bootstrap resamples for confidence intervals")
+    llm = p.add_argument_group("LLM agent (--agent llm): any OpenAI-compatible /v1/chat/completions server")
+    llm.add_argument("--base-url", help="e.g. http://127.0.0.1:8080/v1 (llama-server --jinja, vLLM, Ollama)")
+    llm.add_argument("--model", help="model name sent to the server (default: first model the server lists)")
+    llm.add_argument("--temperature", type=float, default=0.0)
+    llm.add_argument("--top-p", type=float)
+    llm.add_argument("--max-tokens", type=int, default=1024, help="completion tokens per request")
+    llm.add_argument("--timeout", type=float, default=120.0, help="seconds per request")
+    llm.add_argument("--retries", type=int, default=3, help="retries per request on connection errors, 429, 5xx")
+    llm.add_argument("--api-key-env", help="name of the environment variable holding the API key (if any)")
+    llm.add_argument("--parse-text-tools", action="store_true", help="accept tool calls written as text (lenient)")
+    llm.add_argument("--extra-body", help="JSON object merged into every request, e.g. '{\"top_k\": 20}'")
+    llm.add_argument("--label", choices=["REAL", "MOCK"], help="force the MOCK label (detected automatically)")
+    llm.add_argument("--max-trial-tokens", type=int, help="token budget per trial")
+    llm.add_argument("--max-trial-seconds", type=float, help="wall-clock budget per trial")
+    llm.add_argument("--price-in", type=float, default=0.0, help="USD per million prompt tokens")
+    llm.add_argument("--price-out", type=float, default=0.0, help="USD per million completion tokens")
+    llm.add_argument("--quiet", action="store_true", help="no per-task progress on stderr")
 
 
 def expand_specs(envs: list[str], inject: str | None, fault: str | None) -> list[str]:
@@ -154,62 +171,163 @@ def print_env_summary(spec: str, s: dict) -> None:
         )
 
 
+def _build_llm(args: argparse.Namespace):  # type: ignore[no-untyped-def]
+    import os
+
+    from trialgauntlet.agents.llm import LLMConfig, http_json, models_url
+
+    if not args.base_url:
+        raise CLIError("--agent llm needs --base-url, e.g. --base-url http://127.0.0.1:8080/v1")
+    key = None
+    if args.api_key_env:
+        key = os.environ.get(args.api_key_env)
+        if not key:
+            raise CLIError(f"environment variable {args.api_key_env} is not set")
+    extra: dict = {}
+    if args.extra_body:
+        try:
+            extra = json.loads(args.extra_body)
+        except json.JSONDecodeError as err:
+            raise CLIError(f"--extra-body is not valid JSON: {err}") from err
+        if not isinstance(extra, dict):
+            raise CLIError("--extra-body must be a JSON object")
+    model = args.model
+    if not model:
+        try:
+            listing = http_json(
+                models_url(args.base_url), None, {"Authorization": f"Bearer {key}"} if key else {}, 30, "GET"
+            )
+            model = listing["data"][0]["id"]
+        except Exception as err:  # noqa: BLE001 - any failure here is reported with its cause
+            raise CLIError(f"--model not given and the server's model list could not be read: {err}") from err
+        print(f"using model '{model}' (first model the server lists)", file=sys.stderr)
+    return LLMConfig(
+        base_url=args.base_url,
+        model=model,
+        api_key=key,
+        temperature=args.temperature,
+        top_p=args.top_p,
+        max_tokens=args.max_tokens,
+        timeout=args.timeout,
+        retries=args.retries,
+        parse_text_tools=args.parse_text_tools,
+        extra_body=extra,
+    )
+
+
 @command("run", "run an agent on environments and print/write pass@1, pass@k, pass^k", _cfg_run)
 def cmd_run(args: argparse.Namespace) -> int:
+    from datetime import datetime, timezone
+
+    from trialgauntlet.agents.llm import LLMAgent, LLMError
     from trialgauntlet.agents.registry import ALL_AGENTS, DISPLAY, EXTRA, make_baseline
     from trialgauntlet.budget import Budget
     from trialgauntlet.envs import make_env
     from trialgauntlet.harness import evaluate_env, select_seeds
     from trialgauntlet.results import build_results, write_results
 
-    if args.agent not in ALL_AGENTS:
-        raise CLIError(f"unknown agent '{args.agent}'. known: {', '.join(ALL_AGENTS)}")
+    is_llm = args.agent == "llm"
+    if not is_llm and args.agent not in ALL_AGENTS:
+        raise CLIError(f"unknown agent '{args.agent}'. known: llm, {', '.join(ALL_AGENTS)}")
     if args.k > args.n:
         raise CLIError(f"--k ({args.k}) must not exceed --n ({args.n}): pass^k needs at least k trials per task")
     envs = expand_specs(resolve_envs(args.env), args.inject, args.fault)
     envs = resolve_envs(",".join(envs))
+    cfg = _build_llm(args) if is_llm else None
+    created: list[LLMAgent] = []
+
+    def llm_factory() -> LLMAgent:
+        agent = LLMAgent(cfg)  # type: ignore[arg-type]
+        created.append(agent)
+        return agent
+
     summaries = {}
     agent_info: dict = {}
-    for spec in envs:
-        base = spec.split("+", 1)[0]
-        factory = make_baseline(args.agent, base)
-        env = make_env(spec)
-        try:
-            seeds = select_seeds(spec, tiers=_csv(args.tiers), kinds=_csv(args.kinds), limit=args.limit)
-        except ValueError as err:
-            raise CLIError(str(err)) from err
-        budget = Budget(max_steps=args.max_steps or env.default_max_steps)
-        agent = factory()
-        agent_info = {
-            "name": DISPLAY.get(args.agent) or EXTRA[args.agent],
-            "id": agent.agent_id(),
-            "type": "baseline",
-            "config": agent.config(),
-        }
-        _, summary = evaluate_env(
-            spec,
-            factory,
-            n=args.n,
-            k=args.k,
-            seed=args.seed,
-            seeds=seeds,
-            budget=budget,
-            run_dir=args.run_dir,
-            resume=not args.no_resume,
-            n_boot=args.n_boot,
-            include_timing=False,
+    try:
+        for spec in envs:
+            base = spec.split("+", 1)[0]
+            factory = llm_factory if is_llm else make_baseline(args.agent, base)
+            env = make_env(spec)
+            try:
+                seeds = select_seeds(spec, tiers=_csv(args.tiers), kinds=_csv(args.kinds), limit=args.limit)
+            except ValueError as err:
+                raise CLIError(str(err)) from err
+            budget = Budget(
+                max_steps=args.max_steps or env.default_max_steps,
+                max_tokens=args.max_trial_tokens,
+                max_seconds=args.max_trial_seconds,
+            )
+            probe = factory()
+            if is_llm:
+                agent_info = {
+                    "name": cfg.model,  # type: ignore[union-attr]
+                    "id": probe.agent_id(),
+                    "type": "llm",
+                    "model": cfg.model,  # type: ignore[union-attr]
+                    "temperature": cfg.temperature,  # type: ignore[union-attr]
+                    "config": probe.config(),
+                    "base_url": cfg.base_url,  # type: ignore[union-attr]
+                }
+            else:
+                agent_info = {
+                    "name": DISPLAY.get(args.agent) or EXTRA[args.agent],
+                    "id": probe.agent_id(),
+                    "type": "baseline",
+                    "config": probe.config(),
+                }
+            progress = None
+            if is_llm and not args.quiet:
+                tasks = {t.seed: t for t in env.task_specs()}
+
+                def progress(result, resumed, spec=spec, tasks=tasks):  # type: ignore[no-redef]
+                    if result.trial == args.n - 1:
+                        t = tasks[result.task_seed]
+                        print(
+                            f"[{spec}] task {result.task_seed} ({t.tier} {t.kind}) done"
+                            + (" (resumed)" if resumed else ""),
+                            file=sys.stderr,
+                        )
+
+            _, summary = evaluate_env(
+                spec,
+                factory,
+                n=args.n,
+                k=args.k,
+                seed=args.seed,
+                seeds=seeds,
+                budget=budget,
+                run_dir=args.run_dir,
+                resume=not args.no_resume,
+                n_boot=args.n_boot,
+                include_timing=is_llm,
+                price_in_per_m=args.price_in,
+                price_out_per_m=args.price_out,
+                on_trial=progress,
+            )
+            summaries[spec] = summary
+            print_env_summary(spec, summary)
+    except LLMError as err:
+        resume = (
+            " Completed trials are kept; re-run the same command to resume."
+            if args.run_dir
+            else " Use --run-dir to make runs resumable."
         )
-        summaries[spec] = summary
-        print_env_summary(spec, summary)
+        raise CLIError(f"{err}.{resume}") from err
+    label = "BASELINE"
+    if is_llm:
+        mock = any(a.is_mock for a in created) or args.label == "MOCK"
+        if args.label == "REAL" and mock:
+            raise CLIError("--label REAL was requested but the server identified itself as the built-in mock")
+        label = "MOCK" if mock else "REAL"
+        if label == "MOCK":
+            print("MOCK run: scripted server replies; this says nothing about any model.", file=sys.stderr)
     if args.out:
-        doc = build_results(
-            agent=agent_info,
-            label="BASELINE",
-            summaries=summaries,
-            run={"n": args.n, "k": args.k, "seed": args.seed, "n_boot": args.n_boot},
-        )
+        run = {"n": args.n, "k": args.k, "seed": args.seed, "n_boot": args.n_boot}
+        if is_llm:
+            run["created"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        doc = build_results(agent=agent_info, label=label, summaries=summaries, run=run)
         write_results(args.out, doc)
-        print(f"wrote {args.out}")
+        print(f"wrote {args.out} (label {label})")
     return 0
 
 
@@ -300,6 +418,184 @@ def cmd_audit(args: argparse.Namespace) -> int:
             write_results(args.out_dir / f"baseline-{key}.json", doc)
         print(f"wrote {len(agents)} result file(s) to {args.out_dir}")
     return 0 if (report.ok or args.no_fail) else 1
+
+
+# ----------------------------------------------------------------------------------- doctor
+def _cfg_doctor(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--base-url", required=True)
+    p.add_argument("--model")
+    p.add_argument("--api-key-env")
+    p.add_argument("--timeout", type=float, default=60.0)
+
+
+@command("doctor", "check that a model server speaks OpenAI tool calling before you start a long run", _cfg_doctor)
+def cmd_doctor(args: argparse.Namespace) -> int:
+    import os
+    import time
+
+    from trialgauntlet.agents.llm import (
+        MOCK_FINGERPRINT_PREFIX,
+        LLMError,
+        chat_url,
+        http_json,
+        looks_like_text_tool_call,
+        models_url,
+    )
+
+    key = os.environ.get(args.api_key_env) if args.api_key_env else None
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    ok = True
+
+    def report(status: str, text: str) -> None:
+        print(f"[{status}] {text}")
+
+    model = args.model
+    try:
+        listing = http_json(models_url(args.base_url), None, headers, args.timeout, "GET")
+        ids = [m.get("id") for m in listing.get("data", []) if isinstance(m, dict)]
+        report("PASS", f"server reachable; models: {', '.join(map(str, ids)) or '(none listed)'}")
+        model = model or (ids[0] if ids else None)
+    except LLMError as err:
+        report("FAIL", str(err))
+        print(
+            "Fix: start the server and check --base-url (llama.cpp: llama-server --jinja -m <model.gguf> --port 8080)."
+        )
+        return 1
+    if not model:
+        report("FAIL", "no model name: pass --model")
+        return 1
+    tool = {
+        "type": "function",
+        "function": {
+            "name": "echo",
+            "description": "Echo a word back.",
+            "parameters": {
+                "type": "object",
+                "properties": {"word": {"type": "string"}},
+                "required": ["word"],
+                "additionalProperties": False,
+            },
+        },
+    }
+    body = {
+        "model": model,
+        "messages": [{"role": "user", "content": "Call the echo tool with the word ok. Do not answer in prose."}],
+        "tools": [tool],
+        "tool_choice": "auto",
+        "temperature": 0,
+        "max_tokens": 256,
+        "seed": 1,
+    }
+    started = time.monotonic()
+    try:
+        resp = http_json(chat_url(args.base_url), body, headers, args.timeout)
+    except LLMError as err:
+        report("FAIL", f"chat request failed: {err}")
+        return 1
+    latency = time.monotonic() - started
+    message = (resp.get("choices") or [{}])[0].get("message", {})
+    calls = message.get("tool_calls") or []
+    usage = resp.get("usage") or {}
+    if calls:
+        fn = calls[0].get("function", {})
+        args_raw = fn.get("arguments")
+        try:
+            parsed = json.loads(args_raw) if isinstance(args_raw, str) else args_raw
+            good = isinstance(parsed, dict) and fn.get("name") == "echo"
+        except json.JSONDecodeError:
+            good = False
+        if good:
+            report("PASS", f"structured tool call received ({fn.get('name')}({parsed})) in {latency:.2f}s")
+        else:
+            ok = False
+            report("FAIL", f"tool call arrived but is malformed: {fn}")
+    elif looks_like_text_tool_call(message.get("content") or ""):
+        ok = False
+        report("FAIL", "the server returned the tool call as plain text instead of a structured tool_calls field")
+        print("Fix: llama.cpp: restart llama-server with --jinja (and a model whose chat template supports tools);")
+        print("     vLLM: --enable-auto-tool-choice --tool-call-parser <parser>; Ollama: use a tool-capable model.")
+        print("     As a last resort pass --parse-text-tools to trialgauntlet run (results then say so).")
+    else:
+        ok = False
+        report(
+            "FAIL", f"the model answered in prose and did not call the tool: {(message.get('content') or '')[:120]!r}"
+        )
+    if usage:
+        report("INFO", f"usage reported: {usage}")
+    else:
+        report("WARN", "the server reports no token usage; token and cost columns will be zero")
+    if str(resp.get("system_fingerprint", "")).startswith(MOCK_FINGERPRINT_PREFIX):
+        report("INFO", "this is the built-in MOCK server: runs against it are labelled MOCK")
+    return 0 if ok else 1
+
+
+# ------------------------------------------------------------------------------ mock server
+def _cfg_mock(p: argparse.ArgumentParser) -> None:
+    from trialgauntlet.mockserver import MODES
+
+    p.add_argument("--mode", default="oracle", choices=MODES)
+    p.add_argument("--port", type=int, default=8089)
+    p.add_argument("--flaky", type=float, default=0.05, help="per-step failure probability for --mode flaky")
+    p.add_argument("--fail-first", type=int, default=2, help="requests that fail with HTTP 500 for --mode http500")
+
+
+@command("mock-server", "start the scripted mock OpenAI-compatible server (results are labelled MOCK)", _cfg_mock)
+def cmd_mock_server(args: argparse.Namespace) -> int:  # pragma: no cover - blocks until interrupted
+    from trialgauntlet.mockserver import serve
+
+    serve(args.mode, args.port, args.flaky, args.fail_first)
+    return 0
+
+
+# --------------------------------------------------------------------------------- report
+def _cfg_report(p: argparse.ArgumentParser) -> None:
+    p.add_argument("paths", nargs="*", type=Path, default=[Path("results")], help="result files or directories")
+    p.add_argument("--out-dir", type=Path, default=Path("report"))
+    p.add_argument("--threshold", type=float, help="audit threshold (default: the one recorded in each result file)")
+    p.add_argument("--print", dest="show", action="store_true", help="also print the markdown")
+
+
+@command("report", "render results/*.json into report.md plus SVG charts (refuses if there are none)", _cfg_report)
+def cmd_report(args: argparse.Namespace) -> int:
+    from trialgauntlet.report import ReportError, collect, write_report
+
+    try:
+        entries = collect(args.paths)
+        written = write_report(entries, args.out_dir, args.threshold)
+    except ReportError as err:
+        raise CLIError(str(err)) from err
+    for path in written:
+        print(f"wrote {path}")
+    if args.show:
+        print()
+        print(written[0].read_text(encoding="utf-8"))
+    return 0
+
+
+# ----------------------------------------------------------------------------- leaderboard
+def _cfg_leaderboard(p: argparse.ArgumentParser) -> None:
+    p.add_argument("paths", nargs="*", type=Path, default=[Path("results")])
+    p.add_argument("--out", type=Path, default=Path("leaderboard.json"))
+    p.add_argument("--include-mock", action="store_true", help="include MOCK runs (flagged mock: true)")
+    p.add_argument("--validate", type=Path, help="validate an existing leaderboard.json and exit")
+
+
+@command("leaderboard", "build (or --validate) leaderboard.json from result files", _cfg_leaderboard)
+def cmd_leaderboard(args: argparse.Namespace) -> int:
+    from trialgauntlet.leaderboard import LeaderboardError, build_leaderboard, load_leaderboard, write_leaderboard
+    from trialgauntlet.report import ReportError, collect
+
+    try:
+        if args.validate:
+            doc = load_leaderboard(args.validate)
+            print(f"{args.validate}: valid, {len(doc['entries'])} entries")
+            return 0
+        doc = build_leaderboard(collect(args.paths), include_mock=args.include_mock)
+        write_leaderboard(args.out, doc)
+    except (ReportError, LeaderboardError) as err:
+        raise CLIError(str(err)) from err
+    print(f"wrote {args.out} ({len(doc['entries'])} entries)")
+    return 0
 
 
 # ----------------------------------------------------------------------------------- replay

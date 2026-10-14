@@ -53,3 +53,7 @@ extend-exclude = ["results", "runs"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM"]
 ignore = ["SIM108", "B905", "UP007", "UP045"]
+
+[tool.ruff.lint.per-file-ignores]
+# SVG markup lines are easier to read unwrapped.
+"src/trialgauntlet/report.py" = ["E501"]

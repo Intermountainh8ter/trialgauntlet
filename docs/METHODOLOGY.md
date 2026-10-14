@@ -91,14 +91,23 @@ Two-task example, `n = 8, k = 4`: task A succeeds 8/8, task B succeeds 4/8. Suit
 
 ## 5. Confidence intervals
 
-Intervals are percentile bootstrap intervals (default 95%, 1000 resamples, fixed seed) with two
-levels of resampling: tasks are resampled with replacement, then, inside each drawn task, the n
-trial outcomes are resampled with replacement. The two levels capture both "which tasks happened to
-be in the suite" and "which trials happened to be drawn". The bootstrap uses only the standard
-library `random` module with a seed recorded in the result file, so intervals are reproducible.
+Intervals are percentile **cluster bootstrap** intervals over tasks (default 95%, 1000 resamples,
+fixed seed): tasks are resampled with replacement and each drawn task keeps its per-task estimates
+(`c/n`, pass@k, pass^k computed from its own n trials). Those per-task estimates already contain the
+trial-to-trial noise of the agent, so the spread across tasks measures both "which tasks happened to
+be in the suite" and "which trials happened to be drawn".
 
-Intervals on deterministic agents (the baselines) are degenerate in the trial level, which is the
-correct behaviour: a deterministic agent has no trial noise.
+We deliberately do not resample the trials inside each drawn task as well. That would count the trial
+noise twice, and for the non-linear pass^k estimator it is biased: the bootstrap distribution is
+centred on the plug-in value `(c/n)^k`, above the unbiased point estimate, so the interval would not
+even contain the number it is attached to. (An earlier version of this harness did exactly that; the
+mock-LLM run showed pass@k = 99.0% with an interval of [94.2%, 99.0%], which is how it was caught.)
+The bootstrap uses only the standard library `random` module with a seed recorded in the result
+file, so intervals are reproducible.
+
+For a deterministic agent every task is either always passed or always failed; the interval then
+reflects only which tasks are in the suite, which is the correct reading of a deterministic agent on a
+fixed task set. An agent that passes every task, or none, has a degenerate interval.
 
 Intervals are not a substitute for a larger suite. With a few dozen tasks per environment the
 intervals are wide; read them.
@@ -185,3 +194,54 @@ Two wrappers (`docs/SUITES.md`) probe behaviour the clean environments do not.
   task but replay exactly. Because the built-in scripted agents are deterministic, any pass@1 versus
   pass^k gap under faults is attributable to the environment and to the agent's recovery logic, not
   to model sampling. Recovery is reported as the pass rate of trials in which at least one fault hit.
+
+## 10. Result files and the leaderboard
+
+One JSON document per (agent, run), schema `trialgauntlet.results/1` (`src/trialgauntlet/results.py`
+validates it; `trialgauntlet report` and `trialgauntlet leaderboard` refuse anything that does not
+validate):
+
+```
+schema            "trialgauntlet.results/1"
+label             BASELINE (scripted non-LLM agent) | REAL (real model server) | MOCK (built-in mock server)
+harness_version
+agent             {name, id, type: "baseline"|"llm", config, [model, temperature, base_url]}
+run               {n, k, seed, n_boot, [threshold], [created]}      created only for LLM runs
+environments      {<env spec>: {tasks, trials, n, k,
+                                metrics {pass@1, pass@k, pass^k, gap: {value, ci}, outcome_only},
+                                pass_hat_curve [pass^1 .. pass^n],
+                                by_tier, by_expect, usage, reliability, terminated,
+                                per_task [{seed, tier, expect, kind, n, c, c_outcome}],
+                                excluded_tasks, [extra: {injection | faults}]}}
+```
+
+* `label` is set by the harness, not by the caller: a run against a server that identifies itself as
+  the built-in mock is always `MOCK`, and `--label REAL` against it is an error. Baseline files carry
+  no timestamps or wall-clock numbers, so regenerating them is byte-for-byte reproducible.
+* `outcome_only` is the success rate if policy violations were ignored; the distance to `pass@1`
+  is the share of runs that reached the right state by an unsafe route.
+* The leaderboard (`docs/leaderboard.schema.json`) is a flat list of (agent, environment) entries
+  derived from those files; MOCK entries are excluded unless requested and then carry `mock: true`.
+
+## 11. How the LLM agent is called
+
+`--agent llm` talks to any OpenAI-compatible `/v1/chat/completions` endpoint with `tools`. Each trial
+starts a fresh conversation: the environment's policy text is the system message, the first
+observation is the user message and every tool result is a `tool` message that answers the call it
+belongs to. Per request the adapter sends the temperature, `max_tokens`, a seed derived from the
+trial seed, `tool_choice: auto` and `parallel_tool_calls: false`.
+
+* A reply with several tool calls executes only the first; the rest are dropped from the history so
+  that the transcript stays consistent.
+* Arguments that are not a JSON object are a `malformed_arguments` format error. A tool call that
+  arrives as text (the signature of a server started without a tool-capable chat template) is a
+  `tool_call_as_text` format error unless `--parse-text-tools` is given, in which case the result
+  file records the lenient setting in `agent.config`. Three consecutive format errors end the trial.
+* Connection errors, timeouts, HTTP 429 and 5xx are retried with exponential backoff; other 4xx
+  errors and exhausted retries abort the run (completed trials stay on disk and a re-run resumes).
+* Replies without any tool call are nudged once, then the trial ends. Token usage and per-request
+  latency come from the server's `usage` block; if a server reports none, token and cost columns
+  are zero rather than estimated.
+
+Nothing in this adapter is tuned to a particular model. Results depend on the server's sampling,
+chat template and quantization; record those alongside any number you publish.

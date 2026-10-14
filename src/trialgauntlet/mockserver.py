@@ -117,7 +117,10 @@ class MockServer:
                 except json.JSONDecodeError:
                     self._send(400, {"error": "invalid JSON"})
                     return
-                status, doc = server.handle(body, dict(self.headers.items()))
+                try:
+                    status, doc = server.handle(body, dict(self.headers.items()))
+                except Exception as err:  # noqa: BLE001 - a mock must answer, not hang up
+                    status, doc = 500, {"error": {"message": f"mock server error: {err!r}"}}
                 self._send(status, doc)
 
         self._httpd = ThreadingHTTPServer((host, port), Handler)
@@ -170,6 +173,14 @@ class MockServer:
         raw = args if isinstance(args, str) else json.dumps(args)
         return {"id": f"mock_call_{n}", "type": "function", "function": {"name": name, "arguments": raw}}
 
+    @staticmethod
+    def _generic_call(tools: list[dict[str, Any]]) -> tuple[str, dict[str, Any]] | None:
+        if not tools:
+            return None
+        fn = tools[0]["function"]
+        props = fn.get("parameters", {}).get("properties", {})
+        return fn["name"], dict.fromkeys(fn.get("parameters", {}).get("required", props), "ok")
+
     def _refusal(self, tools: list[dict[str, Any]]) -> tuple[str, dict[str, Any]]:
         spec = next(t["function"] for t in tools if t["function"]["name"] == "escalate")
         category = spec["parameters"]["properties"]["category"]["enum"][0]
@@ -184,7 +195,10 @@ class MockServer:
         if self.mode == "refuse":
             name, args = self._refusal(tools)
             return {"role": "assistant", "content": None, "tool_calls": [self._tool_call(name, args, steps + 1)]}
-        nxt = oracle_next_action(messages, tools)
+        try:
+            nxt = oracle_next_action(messages, tools)
+        except ValueError:
+            nxt = self._generic_call(tools)  # not a built-in environment (for example `doctor`'s probe)
         if nxt is None:
             return {"role": "assistant", "content": "Done."}
         name, args = nxt

@@ -131,32 +131,29 @@ def bootstrap_ci(
     level: float = 0.95,
     seed: int = 0,
 ) -> dict[str, tuple[float, float]]:
-    """Two-level percentile bootstrap: resample tasks, then each drawn task's trials.
+    """Percentile cluster bootstrap over tasks. Deterministic given ``seed``.
 
-    Trials within a task are resampled as Bernoulli draws with the observed success rate, which is
-    equivalent to resampling the n recorded outcomes with replacement. Tasks whose trials are all
-    successes or all failures need no draws. Deterministic given ``seed``.
+    Tasks are resampled with replacement and each drawn task keeps its observed per-task estimates.
+    Those estimates already carry their own trial-to-trial noise, so the spread across tasks measures
+    both sources of variance. Resampling the trials inside each drawn task as well would count the
+    trial noise twice and, for the non-linear pass^k estimator, would be biased: the interval would
+    sit above the (unbiased) point estimate.
     """
     if not outcomes:
         raise ValueError("no tasks to bootstrap")
     if not 0.0 < level < 1.0:
         raise ValueError("level must be in (0, 1)")
     rng = random.Random(seed)
-    m = len(outcomes)
-    names = ("pass@1", "pass@k", "pass^k", "gap")
-    samples: dict[str, list[float]] = {name: [] for name in names}
+    rows = [o.metrics(k) for o in outcomes]
+    m = len(rows)
+    samples: dict[str, list[float]] = {"pass@1": [], "pass@k": [], "pass^k": [], "gap": []}
     for _ in range(n_boot):
         s1 = sk = sh = 0.0
         for _ in range(m):
-            o = outcomes[rng.randrange(m)]
-            if o.c in (0, o.n):
-                c = o.c
-            else:
-                p = o.c / o.n
-                c = sum(1 for _ in range(o.n) if rng.random() < p)
-            s1 += pass_at_1(o.n, c)
-            sk += pass_at_k(o.n, c, k)
-            sh += pass_hat_k(o.n, c, k)
+            p1, pk, ph = rows[rng.randrange(m)]
+            s1 += p1
+            sk += pk
+            sh += ph
         samples["pass@1"].append(s1 / m)
         samples["pass@k"].append(sk / m)
         samples["pass^k"].append(sh / m)

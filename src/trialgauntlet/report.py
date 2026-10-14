@@ -149,13 +149,13 @@ def baseline_table(docs: Sequence[Doc]) -> str:
     )
 
 
-def audit_rows(docs: Sequence[Doc], threshold: float) -> list[dict[str, Any]]:
+def audit_rows(docs: Sequence[Doc], threshold: float | None = None) -> list[dict[str, Any]]:
     """Rows of the degenerate-success table: trivial baselines on every environment spec."""
     rows = []
     for doc in docs:
         if doc["agent"]["name"] not in TRIVIAL_NAMES:
             continue
-        thr = doc["run"].get("threshold", threshold)
+        thr = threshold if threshold is not None else doc["run"].get("threshold", DEFAULT_THRESHOLD)
         for spec, s in doc["environments"].items():
             if set(modifiers_of(spec)) - {"naive"}:
                 continue
@@ -244,7 +244,7 @@ def suites_markdown(docs: Sequence[Doc]) -> str:
     return "\n".join(out)
 
 
-def render_markdown(entries: Sequence[tuple[Path, Doc]], threshold: float = DEFAULT_THRESHOLD) -> str:
+def render_markdown(entries: Sequence[tuple[Path, Doc]], threshold: float | None = None) -> str:
     docs = [d for _, d in entries]
     real = [d for d in docs if classify(d) == "real"]
     mock = [d for d in docs if classify(d) == "mock"]
@@ -351,10 +351,10 @@ def svg_gap_chart(docs: Sequence[Doc]) -> str:
     rows = gap_rows(docs)
     k = rows[0]["k"] if rows else 4
     left, bar_w, row_h = 250, 400, 40
-    width, top = left + bar_w + 120, 74
+    width, top = left + bar_w + 150, 74
     height = top + max(1, len(rows)) * row_h + 34
     body = [
-        '<text x="16" y="24" class="ttl">pass@1 versus pass^%d, per environment</text>' % k,
+        f'<text x="16" y="24" class="ttl">pass@1 versus pass^{k}, per environment</text>',
         '<text x="16" y="42" class="sub">The gap between the two bars is the inconsistency that pass@1 alone hides.</text>',
         '<rect x="16" y="52" width="10" height="10" class="b1"/><text x="32" y="61" class="sub">pass@1</text>',
         f'<rect x="92" y="52" width="10" height="10" class="b2"/><text x="108" y="61" class="sub">pass^{k}</text>',
@@ -377,7 +377,7 @@ def svg_gap_chart(docs: Sequence[Doc]) -> str:
         body.append(f'<text x="{left + w1 + 6:.1f}" y="{y + 15}" class="sub">{_pct(r["p1"])}</text>')
         body.append(f'<text x="{left + wk + 6:.1f}" y="{y + 31}" class="sub">{_pct(r["ph"])}</text>')
         body.append(
-            f'<text x="{left + bar_w + 70}" y="{y + 24}" class="sub">gap {100 * (r["p1"] - r["ph"]):.1f} pts</text>'
+            f'<text x="{left + bar_w + 66}" y="{y + 24}" class="sub">gap {100 * (r["p1"] - r["ph"]):.1f} pts</text>'
         )
     body.append(f'<line x1="{left}" y1="{top - 6}" x2="{left}" y2="{top + len(rows) * row_h}" class="axis"/>')
     return _svg(
@@ -386,15 +386,15 @@ def svg_gap_chart(docs: Sequence[Doc]) -> str:
     )  # fmt: skip
 
 
-def svg_audit_chart(docs: Sequence[Doc], threshold: float = DEFAULT_THRESHOLD) -> str:
+def svg_audit_chart(docs: Sequence[Doc], threshold: float | None = None) -> str:
     rows = audit_rows(docs, threshold)
-    thr = rows[0]["threshold"] if rows else threshold
+    thr = rows[0]["threshold"] if rows else DEFAULT_THRESHOLD
     top_max = max([0.1, *[r["value"] for r in rows]])
     top_max = min(1.0, max(0.1, round(top_max * 1.15 + 0.04, 2)))
     left, bar_w, row_h = 230, 420, 24
     gated = [r for r in rows if not r["demo"]]
     demo = [r for r in rows if r["demo"]]
-    width, top = left + bar_w + 130, 78
+    width, top = left + bar_w + 130, 96
     extra = 26 if demo else 0
     height = top + (len(gated) + len(demo)) * row_h + extra + 40
     body = [
@@ -412,7 +412,7 @@ def svg_audit_chart(docs: Sequence[Doc], threshold: float = DEFAULT_THRESHOLD) -
     body.append(f'<line x1="{thr_x:.1f}" y1="{top - 10}" x2="{thr_x:.1f}" y2="{plot_bottom}" class="thr"/>')
     body.append(f'<text x="{thr_x + 5:.1f}" y="{top - 12}" class="sub">threshold {_pct(thr, 0)}</text>')
     y = top
-    for group, title in ((gated, None), (demo, "Demonstration: a naive final-state grader (not gated)")):
+    for group, title in ((gated, None), (demo, "Demonstration: naive grader (not gated)")):
         if not group:
             continue
         if title:
