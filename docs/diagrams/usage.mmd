@@ -1,0 +1,22 @@
+flowchart TD
+    A["Install<br/>pip install -e .<br/>(Python 3.10+, no dependencies)"] --> B["Choose environments<br/>trialgauntlet list<br/>fleet 52 | ledger 42 | config 44 tasks"]
+    B --> C["Audit first<br/>trialgauntlet audit<br/>no-op, random, always-refuse,<br/>scripted-oracle, greedy-unsafe"]
+    C --> D{"AUDIT PASSED?<br/>trivial baselines <= 5%,<br/>oracle 100%, shortcut caught"}
+    D -->|"FLAG"| E["Fix the environment or grader,<br/>re-run the audit<br/>(see troubleshooting chart)"]
+    E --> C
+    D -->|"yes"| F["Optional: stress the suites with scripted agents<br/>run --agent gullible --inject all<br/>run --agent oracle --fault mixed:0.3"]
+    D -->|"yes"| G["Point at a model server<br/>llama-server --jinja ...<br/>trialgauntlet doctor --base-url URL"]
+    G --> H{"doctor PASS?"}
+    H -->|"no"| I["Fix the server<br/>(see troubleshooting chart)"]
+    I --> G
+    H -->|"yes"| J["Smoke test<br/>run --agent llm --limit 5 --n 4 --k 2"]
+    J --> K["Full run, n trials per task<br/>run --agent llm --env all --n 8 --k 4<br/>--run-dir runs/X --out results/X.json<br/>(resumable: re-run the same command)"]
+    K --> L["Report<br/>trialgauntlet report results<br/>tables + SVG charts"]
+    L --> M["Read pass@1 next to pass^k<br/>the gap is the inconsistency<br/>pass@1 alone hides"]
+    K --> N["Verify reproducibility<br/>trialgauntlet replay runs/X<br/>every grade must replay identically"]
+    classDef gate fill:#ffe9b8,stroke:#b07a00,color:#000
+    classDef ok fill:#d6f0d8,stroke:#2b7a2f,color:#000
+    classDef stop fill:#f9d2d2,stroke:#a33,color:#000
+    class D,H gate
+    class M ok
+    class E,I stop

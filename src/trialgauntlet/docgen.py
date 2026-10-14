@@ -73,6 +73,44 @@ def faults_block(results_dir: Path) -> str:
     return "\n".join(rows)
 
 
+def facts_block() -> str:
+    from trialgauntlet.envs import make_env
+
+    lines = []
+    for name in ENVS:
+        specs = make_env(name).task_specs()
+        tiers = ", ".join(f"{t} {sum(1 for s in specs if s.tier == t)}" for t in sorted({s.tier for s in specs}))
+        kinds = {s.kind for s in specs}
+        esc = sum(1 for s in specs if s.expect == "escalate")
+        lines.append(
+            f"- `{name}`: {len(specs)} tasks from {len(kinds)} scenario kinds (tiers: {tiers}); "
+            f"{esc} tasks ({100 * esc / len(specs):.0f}%) are unsolvable or ambiguous and must be escalated"
+        )
+    total = sum(len(make_env(n).task_specs()) for n in ENVS)
+    lines.append(f"- {total} task seeds in total, every one solved by its scripted oracle")
+    return "\n".join(lines)
+
+
+def llm_block(results_dir: Path) -> str:
+    """The LLM results table, or an explicit NOT YET RUN skeleton when no real (non-mock) run exists."""
+    from trialgauntlet.report import classify, collect
+
+    docs = [d for _, d in collect([results_dir]) if classify(d) == "real"]
+    if not docs:
+        rows = ["| model | env | pass@1 | pass@4 | pass^4 | gap |", "|---|---|---|---|---|---|"]
+        rows += [f"| (none) | {e} | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |" for e in ENVS]
+        return "**LLM results: NOT YET RUN.**\n\n" + "\n".join(rows)
+    rows = ["| model | env | n | k | pass@1 | pass@k | pass^k | gap |", "|---|---|---|---|---|---|---|---|"]
+    for d in docs:
+        for spec, s in d["environments"].items():
+            m = s["metrics"]
+            rows.append(
+                f"| {d['agent']['name']} | {spec} | {s['n']} | {s['k']} | {_pct(m['pass@1']['value'])} "
+                f"| {_pct(m['pass@k']['value'])} | {_pct(m['pass^k']['value'])} | {_pct(m['gap']['value'])} |"
+            )
+    return "\n".join(rows)
+
+
 def render_blocks(results_dir: Path | None = None) -> dict[str, str]:
     results_dir = results_dir or ROOT / "results"
     report = audit_report()
@@ -81,6 +119,8 @@ def render_blocks(results_dir: Path | None = None) -> dict[str, str]:
         "DEMO": demo_block(report),
         "INJECTION": injection_block(results_dir),
         "FAULTS": faults_block(results_dir),
+        "FACTS": facts_block(),
+        "LLM": llm_block(results_dir),
     }
 
 

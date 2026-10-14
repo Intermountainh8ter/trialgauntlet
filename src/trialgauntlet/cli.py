@@ -109,7 +109,7 @@ def _cfg_run(p: argparse.ArgumentParser) -> None:
     llm.add_argument("--retries", type=int, default=3, help="retries per request on connection errors, 429, 5xx")
     llm.add_argument("--api-key-env", help="name of the environment variable holding the API key (if any)")
     llm.add_argument("--parse-text-tools", action="store_true", help="accept tool calls written as text (lenient)")
-    llm.add_argument("--extra-body", help="JSON object merged into every request, e.g. '{\"top_k\": 20}'")
+    llm.add_argument("--extra-body", help="JSON object (or @file.json) merged into every request, e.g. @sampling.json")
     llm.add_argument("--label", choices=["REAL", "MOCK"], help="force the MOCK label (detected automatically)")
     llm.add_argument("--max-trial-tokens", type=int, help="token budget per trial")
     llm.add_argument("--max-trial-seconds", type=float, help="wall-clock budget per trial")
@@ -185,8 +185,14 @@ def _build_llm(args: argparse.Namespace):  # type: ignore[no-untyped-def]
             raise CLIError(f"environment variable {args.api_key_env} is not set")
     extra: dict = {}
     if args.extra_body:
+        text = args.extra_body
+        if text.startswith("@"):  # @file.json avoids shell quoting problems (BOM from PowerShell is tolerated)
+            try:
+                text = Path(text[1:]).read_text(encoding="utf-8-sig")
+            except OSError as err:
+                raise CLIError(f"cannot read --extra-body file: {err}") from err
         try:
-            extra = json.loads(args.extra_body)
+            extra = json.loads(text)
         except json.JSONDecodeError as err:
             raise CLIError(f"--extra-body is not valid JSON: {err}") from err
         if not isinstance(extra, dict):
@@ -614,11 +620,12 @@ def _expand_paths(paths: Sequence[str]) -> list[Path]:
     return out
 
 
-@command(
-    "replay",
-    "replay recorded trajectories and verify they reproduce the identical grade",
-    lambda p: p.add_argument("paths", nargs="+", help="trajectory .jsonl files or directories"),
-)
+def _cfg_replay(p: argparse.ArgumentParser) -> None:
+    p.add_argument("paths", nargs="+", help="trajectory .jsonl files or directories")
+    p.add_argument("--verbose", action="store_true", help="also list every trajectory that replays identically")
+
+
+@command("replay", "replay recorded trajectories and verify they reproduce the identical grade", _cfg_replay)
 def cmd_replay(args: argparse.Namespace) -> int:
     from trialgauntlet.runner import replay_trajectory
     from trialgauntlet.trajectory import TrajectoryError
@@ -633,7 +640,8 @@ def cmd_replay(args: argparse.Namespace) -> int:
             bad += 1
             continue
         if report.ok:
-            print(f"IDENTICAL {path}")
+            if args.verbose:
+                print(f"IDENTICAL {path}")
         else:
             bad += 1
             print(f"MISMATCH  {path}")

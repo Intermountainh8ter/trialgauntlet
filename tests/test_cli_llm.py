@@ -158,6 +158,16 @@ def test_api_key_is_read_from_the_named_environment_variable(monkeypatch, capsys
     capsys.readouterr()
 
 
+def test_extra_body_can_come_from_a_file_with_a_powershell_bom(tmp_path, capsys):
+    f = tmp_path / "sampling.json"
+    f.write_bytes(b"\xef\xbb\xbf" + b'{"top_k": 20}')
+    with MockServer("oracle") as server:
+        assert run_llm(server.url, "--model", "m", "--extra-body", f"@{f}") == 0
+        assert server.requests[0]["top_k"] == 20
+    assert run_llm("http://127.0.0.1:9/v1", "--model", "m", "--extra-body", f"@{tmp_path / 'missing.json'}") == 2
+    assert "cannot read --extra-body file" in capsys.readouterr().err
+
+
 def test_extra_body_reaches_the_server(capsys):
     with MockServer("oracle") as server:
         assert (

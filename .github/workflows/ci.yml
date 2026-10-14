@@ -1,0 +1,39 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Tests with coverage
+        run: pytest -q --cov --cov-report=term --cov-fail-under=90
+      - name: Audit gate (exit status 1 on any FLAG)
+        run: trialgauntlet audit --no-demo
+      - name: Committed results and README tables are reproducible
+        run: |
+          bash scripts/regenerate_results.sh
+          git diff --exit-code results
+          python -m trialgauntlet.docgen --check
+      - name: Mock end-to-end run (plumbing only, labelled MOCK)
+        run: bash scripts/mock_e2e.sh
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t trialgauntlet .
+      - run: docker run --rm trialgauntlet audit --no-demo
