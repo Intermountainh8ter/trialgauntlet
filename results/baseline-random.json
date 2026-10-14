@@ -487,7 +487,7 @@
       ],
       "reliability": {
         "mean_format_errors": 0.0,
-        "mean_policy_violations": 0.446,
+        "mean_policy_violations": 0.4403,
         "mean_tool_misuse": 1.2528,
         "violation_rate": 0.2869
       },
@@ -989,7 +989,7 @@
       ],
       "reliability": {
         "mean_format_errors": 0.0,
-        "mean_policy_violations": 0.4915,
+        "mean_policy_violations": 0.4886,
         "mean_tool_misuse": 1.2898,
         "violation_rate": 0.3125
       },
@@ -1056,7 +1056,7 @@
           "value": 0.007212
         },
         "outcome_only": {
-          "value": 0.019231
+          "value": 0.021635
         },
         "pass@1": {
           "ci": [
@@ -1418,7 +1418,7 @@
         },
         {
           "c": 0,
-          "c_outcome": 0,
+          "c_outcome": 1,
           "expect": "solve",
           "kind": "db_failover",
           "n": 8,
@@ -1563,15 +1563,15 @@
       ],
       "reliability": {
         "mean_format_errors": 0.0,
-        "mean_policy_violations": 1.2548,
-        "mean_tool_misuse": 4.5192,
+        "mean_policy_violations": 1.2212,
+        "mean_tool_misuse": 4.512,
         "violation_rate": 0.4231
       },
       "tasks": 52,
       "terminated": {
         "budget:steps": 3,
-        "escalate": 219,
-        "finish": 194
+        "escalate": 218,
+        "finish": 195
       },
       "trials": 416,
       "usage": {
@@ -1579,7 +1579,7 @@
         "mean_agent_latency_s": null,
         "mean_completion_tokens": 0.0,
         "mean_prompt_tokens": 0.0,
-        "mean_steps": 7.9976,
+        "mean_steps": 7.9567,
         "mean_wall_s": null,
         "total_tokens": 0
       }
@@ -1587,8 +1587,8 @@
     "fleet+naive": {
       "by_expect": {
         "escalate": {
-          "pass@1": 0.515625,
-          "pass@k": 0.939286,
+          "pass@1": 0.523438,
+          "pass@k": 0.948214,
           "pass^k": 0.109821,
           "tasks": 16
         },
@@ -1607,8 +1607,8 @@
           "tasks": 16
         },
         "T2": {
-          "pass@1": 0.1875,
-          "pass@k": 0.363571,
+          "pass@1": 0.19375,
+          "pass@k": 0.370714,
           "pass^k": 0.032857,
           "tasks": 20
         },
@@ -1624,41 +1624,41 @@
       "metrics": {
         "gap": {
           "ci": [
-            0.064286,
-            0.164423
+            0.064973,
+            0.167239
           ],
-          "value": 0.127266
+          "value": 0.12967
         },
         "outcome_only": {
-          "value": 0.235577
+          "value": 0.233173
         },
         "pass@1": {
           "ci": [
-            0.086538,
-            0.237981
+            0.088942,
+            0.240385
           ],
-          "value": 0.161058
+          "value": 0.163462
         },
         "pass@k": {
           "ci": [
-            0.168681,
-            0.398626
+            0.172527,
+            0.403846
           ],
-          "value": 0.298626
+          "value": 0.301374
         },
         "pass^k": {
           "ci": [
-            0.009066,
-            0.100824
+            0.010165,
+            0.101923
           ],
           "value": 0.033791
         }
       },
       "n": 8,
       "pass_hat_curve": [
-        0.161058,
-        0.086538,
-        0.051854,
+        0.163462,
+        0.087912,
+        0.052198,
         0.033791,
         0.022665,
         0.014423,
@@ -1730,7 +1730,7 @@
           "tier": "T2"
         },
         {
-          "c": 2,
+          "c": 3,
           "c_outcome": 6,
           "expect": "escalate",
           "kind": "esc_freeze",
@@ -1974,7 +1974,7 @@
         },
         {
           "c": 2,
-          "c_outcome": 4,
+          "c_outcome": 3,
           "expect": "escalate",
           "kind": "esc_unknown_service",
           "n": 8,
@@ -2137,15 +2137,15 @@
       ],
       "reliability": {
         "mean_format_errors": 0.0,
-        "mean_policy_violations": 1.8293,
-        "mean_tool_misuse": 5.0048,
-        "violation_rate": 0.5144
+        "mean_policy_violations": 1.8702,
+        "mean_tool_misuse": 5.024,
+        "violation_rate": 0.512
       },
       "tasks": 52,
       "terminated": {
         "budget:steps": 4,
-        "escalate": 196,
-        "finish": 216
+        "escalate": 195,
+        "finish": 217
       },
       "trials": 416,
       "usage": {
@@ -2153,7 +2153,7 @@
         "mean_agent_latency_s": null,
         "mean_completion_tokens": 0.0,
         "mean_prompt_tokens": 0.0,
-        "mean_steps": 9.1106,
+        "mean_steps": 9.1779,
         "mean_wall_s": null,
         "total_tokens": 0
       }
@@ -2621,7 +2621,7 @@
       ],
       "reliability": {
         "mean_format_errors": 0.0,
-        "mean_policy_violations": 0.4524,
+        "mean_policy_violations": 0.4435,
         "mean_tool_misuse": 3.7917,
         "violation_rate": 0.2946
       },
@@ -3104,7 +3104,7 @@
       ],
       "reliability": {
         "mean_format_errors": 0.0,
-        "mean_policy_violations": 0.4137,
+        "mean_policy_violations": 0.4018,
         "mean_tool_misuse": 3.1815,
         "violation_rate": 0.2708
       },

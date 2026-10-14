@@ -36,6 +36,7 @@ def make_env(spec: str) -> Environment:
 
 
 def _register_builtin() -> None:
+    from trialgauntlet.envs import faults, inject  # noqa: F401  (register the wrappers)
     from trialgauntlet.envs.config import ConfigEnv, ConfigGreedy, ConfigOracle
     from trialgauntlet.envs.fleet import FleetEnv, FleetGreedy, FleetOracle
     from trialgauntlet.envs.ledger import LedgerEnv, LedgerGreedy, LedgerOracle

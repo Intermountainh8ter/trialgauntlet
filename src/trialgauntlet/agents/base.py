@@ -32,6 +32,7 @@ class ScriptedAgent(Agent):
         self._ctx: EpisodeContext | None = None
         self._gen: Script | None = None
         self._count = 0
+        self._gave_up = False
 
     @abstractmethod
     def script(self, ctx: EpisodeContext, first_observation: str) -> Script: ...
@@ -40,9 +41,12 @@ class ScriptedAgent(Agent):
         self._ctx = ctx
         self._gen = None
         self._count = 0
+        self._gave_up = False
 
     def act(self, observation: str) -> Action:
         assert self._ctx is not None, "start() must be called first"
+        if self._gave_up:
+            return Action()
         try:
             if self._gen is None:
                 self._gen = self.script(self._ctx, observation)
@@ -51,5 +55,10 @@ class ScriptedAgent(Agent):
                 tc = self._gen.send(observation)
         except StopIteration:
             return Action()
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError) as err:
+            # A brittle script that cannot parse an unexpected observation (an error document, a
+            # truncated tool result) gives up, like a naive agent would.
+            self._gave_up = True
+            return Action(message=f"script could not handle the observation: {err!r}")
         self._count += 1
         return Action(tool_call=ToolCall(tc.name, dict(tc.arguments), id=f"call_{self._count}"))

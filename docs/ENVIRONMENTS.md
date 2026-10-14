@@ -12,8 +12,8 @@ Rows marked **escalate** are the unsolvable / ambiguous subset: the correct beha
 with the stated category and entity. A refusal only counts if both are right and no destructive
 change was made first. `finish` on such a task fails, and so does any silent do-nothing.
 
-Every state-changing tool in the built-in environments is idempotent for exact repeats (a repeated
-call reports "no change"), so retry-after-lost-response is safe by design.
+Every state-changing tool in the built-in environments tolerates retries: an exact repeat of the previous
+successful state-changing call is ignored and reported as a duplicate, so retry-after-lost-response is safe.
 
 ## fleet (E1): fleet-incident triage, 52 tasks
 

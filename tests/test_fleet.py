@@ -130,13 +130,37 @@ def test_read_logs_explains_crash_loop():
     assert any("no space left" in line for line in logs["lines"])
 
 
-def test_restart_of_running_service_reports_no_change():
+def test_restart_of_a_running_service_reports_no_change():
+    for variant in range(VARIANTS):
+        env = start("svc_crash", variant)
+        h = env.target_hosts[0]
+        running = [s for s, st in env.hosts[h]["services"].items() if st == "running"]
+        if running:
+            out, _ = do(env, "restart_service", host=h, service=running[0])
+            assert "already running" in out["note"]
+            return
+    pytest.fail("no variant has a second service on the faulty host")
+
+
+def test_exact_repeat_of_a_mutating_call_is_ignored_as_a_duplicate():
     env = start("svc_crash")
     h = env.target_hosts[0]
     svc = next(s for s, st in env.hosts[h]["services"].items() if st == "failed")
-    do(env, "restart_service", host=h, service=svc)
-    out, _ = do(env, "restart_service", host=h, service=svc)
-    assert "already running" in out["note"]
+    first, _ = do(env, "restart_service", host=h, service=svc)
+    assert first == {"ok": True}
+    again, res = do(env, "restart_service", host=h, service=svc)
+    assert "duplicate" in again["note"] and not res.is_error
+    assert env.violations == [], "a retry must not be punished as collateral damage"
+
+
+def test_duplicate_suppression_only_applies_to_the_immediately_previous_mutation():
+    env = start("overheat")
+    h = env.target_hosts[0]
+    tok = approve(env, "drain_host", h)
+    do(env, "drain_host", host=h, approval_token=tok)
+    do(env, "undrain_host", host=h)
+    out, _ = do(env, "drain_host", host=h, approval_token=tok)
+    assert out.get("drained") is True and env.hosts[h]["drained"]
 
 
 def test_db_failover_flow_and_primary_protection():

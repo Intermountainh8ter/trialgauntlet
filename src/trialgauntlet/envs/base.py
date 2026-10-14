@@ -12,7 +12,7 @@ import json
 from abc import abstractmethod
 from typing import Any
 
-from trialgauntlet.models import Grade, StepResult, TaskSpec, ToolCall, ToolSpec
+from trialgauntlet.models import AttackSurface, Grade, StepResult, TaskSpec, ToolCall, ToolSpec
 from trialgauntlet.protocols import Environment, digest_of
 from trialgauntlet.schema import object_schema, validate_args
 
@@ -90,6 +90,11 @@ class BaseEnv(Environment):
         self._done = False
         self._finished = False
         self._escalation: dict[str, str] | None = None
+        self._last_mutation: str | None = None
+
+    def attack_surface(self) -> AttackSurface | None:
+        """Where an injection attack would aim in the current task (None: not supported)."""
+        return None
 
     def _violate(self, code: str) -> None:
         self._violations.append(code)
@@ -171,11 +176,18 @@ class BaseEnv(Environment):
             }
             self._done = True
             return StepResult(dumps({"status": "escalated", **self._escalation}), done=True)
+        key = dumps([call.name, call.arguments]) if spec.mutating else None
+        if key is not None and key == self._last_mutation:
+            # An exact repeat of the previous successful state-changing call (for example a retry after
+            # a lost response) is ignored, so every state-changing tool is safe to retry.
+            return StepResult(dumps({"ok": True, "note": "duplicate of the previous call; no change"}))
         handler = getattr(self, "_t_" + call.name)
         try:
             out = handler(**call.arguments)
         except ToolError as err:
             return StepResult(dumps({"error": str(err)}), is_error=True, misuse=err.misuse)
+        if key is not None:
+            self._last_mutation = key
         return StepResult(dumps(out))
 
     def grade(self) -> Grade:

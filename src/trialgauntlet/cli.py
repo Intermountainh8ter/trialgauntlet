@@ -78,13 +78,19 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 # -------------------------------------------------------------------------------------- run
 def _cfg_run(p: argparse.ArgumentParser) -> None:
-    from trialgauntlet.agents.registry import BASELINES
+    from trialgauntlet.agents.registry import ALL_AGENTS
 
-    p.add_argument("--agent", default="oracle", help=f"one of {', '.join(BASELINES)}")
+    p.add_argument("--agent", default="oracle", help=f"one of {', '.join(ALL_AGENTS)}")
     p.add_argument("--env", default="all", help="'all' or comma separated environment specs, e.g. fleet,ledger+naive")
     p.add_argument("--n", type=int, default=8, help="trials per task")
     p.add_argument("--k", type=int, default=4, help="k for pass@k and pass^k (must be <= n)")
     p.add_argument("--seed", type=int, default=0, help="run seed (trial seeds are derived from it)")
+    p.add_argument(
+        "--inject", help="wrap every environment in an injection variant: instruction, fake_system, exfil or all"
+    )
+    p.add_argument(
+        "--fault", help="wrap every environment in a fault profile, e.g. transient, mixed:0.3 (see docs/SUITES.md)"
+    )
     p.add_argument("--tiers", help="comma separated tiers to run, e.g. T1,T2")
     p.add_argument("--kinds", help="comma separated scenario kinds to run")
     p.add_argument("--limit", type=int, help="run only the first N matching tasks per environment")
@@ -93,6 +99,18 @@ def _cfg_run(p: argparse.ArgumentParser) -> None:
     p.add_argument("--no-resume", action="store_true", help="re-run trials even if trajectories exist")
     p.add_argument("--out", type=Path, help="write the results JSON here")
     p.add_argument("--n-boot", type=int, default=1000, help="bootstrap resamples for confidence intervals")
+
+
+def expand_specs(envs: list[str], inject: str | None, fault: str | None) -> list[str]:
+    """Apply ``--inject`` / ``--fault`` to environment specs (``--inject all`` expands to every variant)."""
+    from trialgauntlet.envs.inject import VARIANTS
+
+    if inject is not None and inject != "all" and inject not in VARIANTS:
+        raise CLIError(f"unknown injection variant '{inject}'. known: {', '.join(VARIANTS)}, all")
+    variants: list[str | None] = list(VARIANTS) if inject == "all" else [inject]
+    return [
+        env + (f"+inject={v}" if v else "") + (f"+fault={fault}" if fault else "") for env in envs for v in variants
+    ]
 
 
 def print_env_summary(spec: str, s: dict) -> None:
@@ -116,21 +134,40 @@ def print_env_summary(spec: str, s: dict) -> None:
         f"tool misuse/trial {r['mean_tool_misuse']:.2f}, steps/trial {s['usage']['mean_steps']:.1f}"
     )
     print(f"    terminated: {s['terminated']}")
+    inj = s.get("extra", {}).get("injection")
+    if inj:
+        given = inj["attack_success_rate_given_exposed"]
+        print(
+            f"    injection ({inj['variant']}): attack success {_pct(inj['attack_success_rate']).strip()} "
+            f"(exposed in {_pct(inj['exposed_rate']).strip()} of trials, "
+            f"{'n/a' if given is None else _pct(given).strip()} when exposed), "
+            f"utility under attack {_pct(inj['utility_under_attack']).strip()}"
+        )
+    flt = s.get("extra", {}).get("faults")
+    if flt:
+        rec = flt["pass_rate_given_fault"]
+        retries = flt["mean_retries_after_fault"]
+        print(
+            f"    faults: {flt['mean_faults_injected']:.2f}/trial, {flt['trials_with_fault']} trials hit, "
+            f"pass rate when hit {'n/a' if rec is None else _pct(rec).strip()}, "
+            f"retries after a fault {'n/a' if retries is None else retries}"
+        )
 
 
 @command("run", "run an agent on environments and print/write pass@1, pass@k, pass^k", _cfg_run)
 def cmd_run(args: argparse.Namespace) -> int:
-    from trialgauntlet.agents.registry import BASELINES, DISPLAY, make_baseline
+    from trialgauntlet.agents.registry import ALL_AGENTS, DISPLAY, EXTRA, make_baseline
     from trialgauntlet.budget import Budget
     from trialgauntlet.envs import make_env
     from trialgauntlet.harness import evaluate_env, select_seeds
     from trialgauntlet.results import build_results, write_results
 
-    if args.agent not in BASELINES:
-        raise CLIError(f"unknown agent '{args.agent}'. known: {', '.join(BASELINES)}")
+    if args.agent not in ALL_AGENTS:
+        raise CLIError(f"unknown agent '{args.agent}'. known: {', '.join(ALL_AGENTS)}")
     if args.k > args.n:
         raise CLIError(f"--k ({args.k}) must not exceed --n ({args.n}): pass^k needs at least k trials per task")
-    envs = resolve_envs(args.env)
+    envs = expand_specs(resolve_envs(args.env), args.inject, args.fault)
+    envs = resolve_envs(",".join(envs))
     summaries = {}
     agent_info: dict = {}
     for spec in envs:
@@ -143,7 +180,12 @@ def cmd_run(args: argparse.Namespace) -> int:
             raise CLIError(str(err)) from err
         budget = Budget(max_steps=args.max_steps or env.default_max_steps)
         agent = factory()
-        agent_info = {"name": DISPLAY[args.agent], "id": agent.agent_id(), "type": "baseline", "config": agent.config()}
+        agent_info = {
+            "name": DISPLAY.get(args.agent) or EXTRA[args.agent],
+            "id": agent.agent_id(),
+            "type": "baseline",
+            "config": agent.config(),
+        }
         _, summary = evaluate_env(
             spec,
             factory,

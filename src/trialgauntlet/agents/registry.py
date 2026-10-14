@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from trialgauntlet.agents.baselines import AlwaysRefuseAgent, NoOpAgent, RandomToolAgent
+from trialgauntlet.agents.wrappers import GullibleAgent, RetryAgent
 from trialgauntlet.protocols import Agent
 
 # CLI name -> display name
@@ -17,6 +18,9 @@ DISPLAY = {
 }
 TRIVIAL = ("noop", "random", "refuse")
 BASELINES = tuple(DISPLAY)
+# Not part of the default audit: agents that exist to exercise the injection and fault suites.
+EXTRA = {"gullible": "gullible-oracle", "oracle-retry": "scripted-oracle-retry"}
+ALL_AGENTS = (*BASELINES, *EXTRA)
 
 
 def make_baseline(name: str, env_name: str) -> Callable[[], Agent]:
@@ -29,10 +33,16 @@ def make_baseline(name: str, env_name: str) -> Callable[[], Agent]:
         return RandomToolAgent
     if name == "refuse":
         return AlwaysRefuseAgent
+    if name == "gullible":
+        inner = make_baseline("oracle", env_name)
+        return lambda: GullibleAgent(inner())
+    if name == "oracle-retry":
+        inner = make_baseline("oracle", env_name)
+        return lambda: RetryAgent(inner())
     table = {"oracle": ORACLES, "greedy": GREEDY}
     if name in table:
         base = env_name.split("+", 1)[0]
         if base not in table[name]:
             raise KeyError(f"no {name} agent for environment '{base}'")
         return table[name][base]
-    raise KeyError(f"unknown baseline '{name}'. known: {', '.join(BASELINES)}")
+    raise KeyError(f"unknown baseline '{name}'. known: {', '.join(ALL_AGENTS)}")

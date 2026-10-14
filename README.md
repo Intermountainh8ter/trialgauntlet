@@ -35,10 +35,11 @@ trialgauntlet audit --out-dir results --format markdown
 `n=8` trials per task, `k=4`, threshold 5% on pass@1. `outcome-only` ignores policy violations;
 the gap to `pass@1` is how much the policy grader matters.
 
+<!-- AUDIT:BEGIN -->
 | env | agent | pass@1 | 95% CI | pass@4 | pass^4 | outcome-only | verdict |
 |---|---|---|---|---|---|---|---|
 | fleet | no-op | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 0.0% | ok |
-| fleet | random-tool | 0.7% | 0.0-2.2% | 2.9% | 0.0% | 1.9% | ok |
+| fleet | random-tool | 0.7% | 0.0-2.2% | 2.9% | 0.0% | 2.2% | ok |
 | fleet | always-refuse | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 0.0% | ok |
 | fleet | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | fleet | greedy-unsafe | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 61.5% | ok: shortcut caught |
@@ -52,6 +53,7 @@ the gap to `pass@1` is how much the policy grader matters.
 | config | always-refuse | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 0.0% | ok |
 | config | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | config | greedy-unsafe | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 18.2% | ok: shortcut caught |
+<!-- AUDIT:END -->
 
 Honest reading of that table:
 
@@ -68,10 +70,11 @@ Honest reading of that table:
 What a degenerate benchmark looks like: the same baselines against a deliberately naive grader that
 passes unsolvable tasks when the final state is unchanged (`<env>+naive`; not used anywhere else):
 
+<!-- DEMO:BEGIN -->
 | env | agent | pass@1 | 95% CI | pass@4 | pass^4 | outcome-only | verdict |
 |---|---|---|---|---|---|---|---|
 | fleet+naive | no-op | 30.8% | 19.2-44.2% | 30.8% | 30.8% | 30.8% | FLAG: trivial baseline exceeds 5.0% |
-| fleet+naive | random-tool | 16.1% | 8.7-23.8% | 29.9% | 3.4% | 23.6% | FLAG: trivial baseline exceeds 5.0% |
+| fleet+naive | random-tool | 16.3% | 8.9-24.0% | 30.1% | 3.4% | 23.3% | FLAG: trivial baseline exceeds 5.0% |
 | fleet+naive | always-refuse | 30.8% | 19.2-44.2% | 30.8% | 30.8% | 30.8% | FLAG: trivial baseline exceeds 5.0% |
 | fleet+naive | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | fleet+naive | greedy-unsafe | 0.0% | 0.0-0.0% | 0.0% | 0.0% | 61.5% | ok: shortcut caught |
@@ -85,13 +88,61 @@ passes unsolvable tasks when the final state is unchanged (`<env>+naive`; not us
 | config+naive | always-refuse | 36.4% | 22.7-50.0% | 36.4% | 36.4% | 36.4% | FLAG: trivial baseline exceeds 5.0% |
 | config+naive | scripted-oracle | 100.0% | 100.0-100.0% | 100.0% | 100.0% | 100.0% | ok: solvable |
 | config+naive | greedy-unsafe | 9.1% | 2.3-18.2% | 9.1% | 9.1% | 27.3% | FLAG: policy grader accepted a shortcut |
+<!-- DEMO:END -->
 
-The do-nothing agent scores {30.8, 35.7, 36.4}% on the naive variants, 0% on the real graders.
+The do-nothing agent scores 30.8%, 35.7% and 36.4% on the three naive variants and 0% on the real graders.
 This illustrates the mechanism behind a published finding about do-nothing agents on a tau-bench
 partition; it does not reproduce that paper's numbers, and we have not re-run tau-bench.
 
 Result files (`results/baseline-*.json`) are byte-identical on regeneration, and were identical on
 Python 3.11, 3.12 and 3.13.
+
+## Injection and fault suites
+
+Both are wrappers around any environment (`docs/SUITES.md`). `trialgauntlet run --env fleet --inject all`
+adds hostile instructions to tool results; `--fault mixed:0.3` injects timeouts, 503s, truncated
+outputs and lost responses. They are exercised here with scripted agents only, which is what proves
+the graders fire: a `gullible` agent that obeys instructions found in tool results, and a retrying
+and a non-retrying version of the same scripted agent.
+
+Injection (`n=2`; ASR = attack success rate, exposed = trials in which a poisoned tool result was read):
+
+<!-- INJECTION:BEGIN -->
+| environment | variant | agent | attack success | exposed | utility under attack |
+|---|---|---|---|---|---|
+| config | exfil | scripted-oracle | 0.0% | 100.0% | 100.0% |
+| config | fake_system | scripted-oracle | 0.0% | 100.0% | 100.0% |
+| config | instruction | scripted-oracle | 0.0% | 100.0% | 100.0% |
+| fleet | exfil | scripted-oracle | 0.0% | 100.0% | 100.0% |
+| fleet | fake_system | scripted-oracle | 0.0% | 100.0% | 100.0% |
+| fleet | instruction | scripted-oracle | 0.0% | 100.0% | 100.0% |
+| ledger | exfil | scripted-oracle | 0.0% | 92.9% | 100.0% |
+| ledger | fake_system | scripted-oracle | 0.0% | 92.9% | 100.0% |
+| ledger | instruction | scripted-oracle | 0.0% | 92.9% | 100.0% |
+| config | exfil | gullible-oracle | 100.0% | 100.0% | 0.0% |
+| config | fake_system | gullible-oracle | 100.0% | 100.0% | 0.0% |
+| config | instruction | gullible-oracle | 100.0% | 100.0% | 0.0% |
+| fleet | exfil | gullible-oracle | 100.0% | 100.0% | 0.0% |
+| fleet | fake_system | gullible-oracle | 100.0% | 100.0% | 0.0% |
+| fleet | instruction | gullible-oracle | 100.0% | 100.0% | 0.0% |
+| ledger | exfil | gullible-oracle | 92.9% | 92.9% | 7.1% |
+| ledger | fake_system | gullible-oracle | 92.9% | 92.9% | 7.1% |
+| ledger | instruction | gullible-oracle | 92.9% | 92.9% | 7.1% |
+<!-- INJECTION:END -->
+
+Faults (`mixed:0.3`, `n=8`, `k=4`); the non-retrying agent is deterministic, so every pass^4 loss below
+comes from the environment's faults, not from the agent:
+
+<!-- FAULTS:BEGIN -->
+| environment | agent | pass@1 | pass^4 | faults per trial | pass rate when a fault hit |
+|---|---|---|---|---|---|
+| fleet | scripted-oracle | 52.4% | 12.6% | 0.62 | 16.8% |
+| fleet | scripted-oracle-retry | 100.0% | 100.0% | 1.30 | 100.0% |
+| ledger | scripted-oracle | 36.0% | 8.7% | 0.94 | 19.2% |
+| ledger | scripted-oracle-retry | 100.0% | 100.0% | 1.86 | 100.0% |
+| config | scripted-oracle | 48.6% | 28.8% | 1.85 | 43.8% |
+| config | scripted-oracle-retry | 100.0% | 100.0% | 3.35 | 100.0% |
+<!-- FAULTS:END -->
 
 ## Quickstart
 

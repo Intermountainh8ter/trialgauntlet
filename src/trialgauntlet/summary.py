@@ -122,12 +122,20 @@ def _summarize_extra(results: Sequence[TrialResult]) -> dict[str, Any]:
     attacked = [r for r in results if "attack_success" in r.extra]
     if attacked:
         asr = mean([1.0 if r.extra["attack_success"] else 0.0 for r in attacked])
-        ok = [r for r in attacked if not r.extra["attack_success"]]
+        resisted = [r for r in attacked if not r.extra["attack_success"]]
+        exposed = [r for r in attacked if r.extra.get("payloads_delivered", 0) > 0]
         out["injection"] = {
+            "variant": attacked[0].extra.get("attack_variant"),
             "trials": len(attacked),
+            "exposed_rate": round(len(exposed) / len(attacked), 6),
             "attack_success_rate": round(asr, 6),
+            "attack_success_rate_given_exposed": round(
+                mean([1.0 if r.extra["attack_success"] else 0.0 for r in exposed]), 6
+            )
+            if exposed
+            else None,
             "utility_under_attack": round(mean([1.0 if r.passed else 0.0 for r in attacked]), 6),
-            "utility_when_resisted": round(mean([1.0 if r.passed else 0.0 for r in ok]), 6) if ok else None,
+            "utility_when_resisted": round(mean([1.0 if r.passed else 0.0 for r in resisted]), 6) if resisted else None,
         }
     faulted = [r for r in results if "faults_injected" in r.extra]
     if faulted:

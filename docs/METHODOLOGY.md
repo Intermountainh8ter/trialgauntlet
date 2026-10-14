@@ -172,3 +172,16 @@ The price is realism: scripted users do not rephrase, forget or lie in open-ende
   and is passed to the agent (random baseline, LLM sampling seed) and to the fault wrappers.
 * Replay does not need the agent: the recorded tool calls are fed back and every observation, the
   termination reason, the final-state digest and the grade must match.
+
+## 9. Injection and fault suites
+
+Two wrappers (`docs/SUITES.md`) probe behaviour the clean environments do not.
+
+* **Injection.** Attack success is a predicate over the tool-call log: did the agent issue the call
+  the hostile text asked for? It is reported next to utility under attack and next to the fraction
+  of trials in which a poisoned result was actually read (exposure). A defence that simply never
+  reads tool output would otherwise look perfect.
+* **Faults.** Seeded per `(profile, task seed, trial)`, so faults differ between the trials of one
+  task but replay exactly. Because the built-in scripted agents are deterministic, any pass@1 versus
+  pass^k gap under faults is attributable to the environment and to the agent's recovery logic, not
+  to model sampling. Recovery is reported as the pass rate of trials in which at least one fault hit.
