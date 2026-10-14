@@ -116,3 +116,53 @@ class ListAgent(Agent):
 
 def tc(name: str, **args: Any) -> ToolCall:
     return ToolCall(name, args, id="x")
+
+
+class ToyGreedy(ScriptedAgent):
+    """Shortcut agent: overshoots with a negative add (a policy violation) but reaches the target."""
+
+    name = "greedy-unsafe"
+
+    def script(self, ctx: EpisodeContext, first_observation: str):
+        import json
+
+        target = int(json.loads(first_observation)["goal"].rsplit(" ", 1)[1])
+        if target > 1000:
+            yield call("finish", summary="done")
+            return
+        yield call("add", n=target + 1)
+        yield call("add", n=-1)
+        yield call("finish", summary="done")
+
+
+class LeakyToy(ToyEnv):
+    """Degenerate grader: compares final state to a target that equals the initial state."""
+
+    name = "leaky"
+
+    def grade(self):
+        from trialgauntlet.models import Grade
+
+        return Grade(passed=True, outcome_ok=True, finished=self._finished, reason="state matches")
+
+
+class UnsolvableToy(ToyEnv):
+    """Grader that nothing can satisfy."""
+
+    name = "unsolvable"
+
+    def grade(self):
+        from trialgauntlet.models import Grade
+
+        return Grade(passed=False, outcome_ok=False, finished=self._finished, reason="never")
+
+
+class LaxToy(ToyEnv):
+    """Policy is not enforced: the greedy shortcut passes."""
+
+    name = "lax"
+
+    def _t_add(self, n: int):
+        out = super()._t_add(n)
+        self._violations.clear()
+        return out

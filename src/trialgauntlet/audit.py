@@ -34,6 +34,8 @@ class AuditRow:
     flagged: bool
     verdict: str
     gated: bool = True
+    ci_low: float = 0.0
+    ci_high: float = 0.0
 
 
 @dataclass
@@ -132,6 +134,8 @@ def run_audit(
                     flagged=flagged,
                     verdict=verdict,
                     gated=gated,
+                    ci_low=m["pass@1"]["ci"][0],
+                    ci_high=m["pass@1"]["ci"][1],
                 )
             )
     return report
@@ -141,12 +145,22 @@ def _pct(x: float) -> str:
     return f"{100 * x:.1f}%"
 
 
-def format_table(report: AuditReport, markdown: bool = False) -> str:
+def format_table(report: AuditReport, markdown: bool = False, rows: Sequence[AuditRow] | None = None) -> str:
     k = report.k
-    head = ["env", "agent", "pass@1", f"pass@{k}", f"pass^{k}", "outcome-only", "verdict"]
+    rows = report.rows if rows is None else rows
+    head = ["env", "agent", "pass@1", "95% CI", f"pass@{k}", f"pass^{k}", "outcome-only", "verdict"]
     body = [
-        [r.env, r.agent, _pct(r.pass1), _pct(r.passk), _pct(r.pass_hat), _pct(r.outcome_only), r.verdict]
-        for r in report.rows
+        [
+            r.env,
+            r.agent,
+            _pct(r.pass1),
+            f"{100 * r.ci_low:.1f}-{100 * r.ci_high:.1f}%",
+            _pct(r.passk),
+            _pct(r.pass_hat),
+            _pct(r.outcome_only),
+            r.verdict,
+        ]
+        for r in rows
     ]
     if markdown:
         lines = ["| " + " | ".join(head) + " |", "|" + "|".join("---" for _ in head) + "|"]

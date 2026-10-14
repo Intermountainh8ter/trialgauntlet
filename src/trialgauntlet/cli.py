@@ -234,22 +234,18 @@ def cmd_audit(args: argparse.Namespace) -> int:
         md = args.format == "markdown"
         gated = [r for r in report.rows if r.gated]
         demo = [r for r in report.rows if not r.gated]
-        report_rows = report.rows
-        report.rows = gated
         print(
-            f"Degenerate-success audit: n={report.n} trials/task, k={report.k}, FLAG when a trivial baseline exceeds {report.threshold:.1%} {report.metric}\n"
+            f"Degenerate-success audit: n={report.n} trials/task, k={report.k}, "
+            f"FLAG when a trivial baseline exceeds {report.threshold:.1%} {report.metric}\n"
         )
-        print(format_table(report, markdown=md))
+        print(format_table(report, markdown=md, rows=gated))
         if demo:
-            report.rows = demo
             print(
-                "\nDemonstration only (not gated): the same baselines against a deliberately naive final-state grader that"
+                "\nDemonstration only (not gated): the same baselines against a deliberately naive final-state"
+                "\ngrader that passes unsolvable tasks whenever the state is unchanged. This is what a degenerate"
+                "\nbenchmark looks like.\n"
             )
-            print(
-                "passes unsolvable tasks whenever the state is unchanged. This is what a degenerate benchmark looks like.\n"
-            )
-            print(format_table(report, markdown=md))
-        report.rows = report_rows
+            print(format_table(report, markdown=md, rows=demo))
         print("\n" + format_summary(report))
     if args.out_dir:
         for key in agents:
