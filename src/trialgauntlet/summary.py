@@ -43,6 +43,7 @@ def summarize_env(
     seed: int = 0,
     price_in_per_m: float = 0.0,
     price_out_per_m: float = 0.0,
+    include_timing: bool = True,
 ) -> dict[str, Any]:
     """Summarise all trials of one environment spec.
 
@@ -88,8 +89,8 @@ def summarize_env(
             "mean_steps": round(mean([r.steps for r in kept]), 4),
             "mean_prompt_tokens": round(mean([r.prompt_tokens for r in kept]), 2),
             "mean_completion_tokens": round(mean([r.completion_tokens for r in kept]), 2),
-            "mean_agent_latency_s": round(mean([r.agent_latency_s for r in kept]), 6),
-            "mean_wall_s": round(mean([r.wall_s for r in kept]), 6),
+            "mean_agent_latency_s": round(mean([r.agent_latency_s for r in kept]), 6) if include_timing else None,
+            "mean_wall_s": round(mean([r.wall_s for r in kept]), 6) if include_timing else None,
             "total_tokens": total_prompt + total_completion,
             "cost_usd": round(cost, 6),
         },

@@ -221,6 +221,26 @@ class BaseEnv(Environment):
             details=details,
         )
 
+    def naive_grade(self) -> Grade:
+        """A deliberately weak grader used only to demonstrate the audit.
+
+        It scores unsolvable tasks as passed whenever the state was left unchanged, which is exactly
+        the final-state comparison that lets a do-nothing agent succeed. Never used by default.
+        """
+        grade = self.grade()
+        if self._task is None or self._task.expect == "solve":
+            return grade
+        unchanged = self._clean_for_escalation()
+        return Grade(
+            passed=unchanged and not grade.violations,
+            outcome_ok=unchanged,
+            violations=grade.violations,
+            reason="naive grader: state unchanged",
+            finished=grade.finished,
+            escalated=grade.escalated,
+            details=grade.details,
+        )
+
     def state_digest(self) -> str:
         return digest_of(
             {

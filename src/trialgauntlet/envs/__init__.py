@@ -21,11 +21,18 @@ def env_names() -> list[str]:
 
 
 def make_env(spec: str) -> Environment:
-    """Build an environment from a spec string. Wrapped variants use ``+`` (see wrappers)."""
-    base = spec.split("+", 1)[0]
+    """Build an environment from a spec such as ``fleet`` or ``ledger+naive`` (see ``envs.wrap``)."""
+    from trialgauntlet.envs.wrap import WRAPPERS, parse_spec
+
+    base, modifiers = parse_spec(spec)
     if base not in ENV_FACTORIES:
         raise KeyError(f"unknown environment '{base}'. known: {', '.join(sorted(ENV_FACTORIES)) or '(none)'}")
-    return ENV_FACTORIES[base]()
+    env = ENV_FACTORIES[base]()
+    for name, arg in modifiers:
+        if name not in WRAPPERS:
+            raise KeyError(f"unknown environment modifier '{name}'. known: {', '.join(sorted(WRAPPERS))}")
+        env = WRAPPERS[name](env, arg)
+    return env
 
 
 def _register_builtin() -> None:
