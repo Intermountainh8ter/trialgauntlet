@@ -28,12 +28,15 @@ def tracked_text_files():
 
 
 def test_readme_headline_claims_and_skeleton():
-    assert "LLM results: NOT YET RUN" in README
+    # Qwen3-8B pair results are now committed; README no longer says NOT YET RUN.
+    assert "LLM results: Qwen3-8B stock vs ablated pair" in README
     assert "pass^k" in README and "degenerate-success audit" in README
     assert "Windows (PowerShell)" in README and "llama-server.exe" in README and "--jinja" in README
     assert "Intermountainh8ter/trialgauntlet" in README
     assert "not a general benchmark" in README
-    assert "<!-- LLM:BEGIN -->" in README and "NOT YET RUN | NOT YET RUN" in README
+    assert "<!-- LLM:BEGIN -->" in README
+    assert "qwen3-8b-stock" in README and "qwen3-8b-ablated" in README
+    assert "results/qwen3-8b-{stock,ablated}-n4.json" in README
 
 
 def test_readme_has_no_unfilled_generated_blocks():

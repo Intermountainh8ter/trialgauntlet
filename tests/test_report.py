@@ -91,7 +91,12 @@ def test_cli_report_refuses_with_exit_status_2(tmp_path, capsys):
 
 
 def test_baseline_only_report_says_llm_results_not_yet_run():
-    md = render_markdown(baseline_entries())
+    # Filter the on-disk fixture down to just the baseline files so this unit
+    # test keeps testing the "no real LLM run" branch after real Qwen3-8B pair
+    # results landed in results/.
+    from trialgauntlet.report import classify
+    base_only = [(p, d) for p, d in baseline_entries() if classify(d) == "baseline"]
+    md = render_markdown(base_only)
     assert "LLM results: NOT YET RUN" in md
     assert "## Baseline agents" in md and "## Degenerate-success audit" in md and "AUDIT PASSED" in md
     assert "## Injection suite" in md and "## Fault suite" in md

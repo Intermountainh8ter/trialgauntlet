@@ -2,7 +2,15 @@
 
 **Report pass^k next to pass@k. Audit every environment against do-nothing agents before you trust it.**
 
-![license: MIT](https://img.shields.io/badge/license-MIT-blue) ![python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue) ![runtime dependencies: none](https://img.shields.io/badge/runtime%20dependencies-none-brightgreen) ![LLM results: not yet run](https://img.shields.io/badge/LLM%20results-not%20yet%20run-lightgrey)
+
+## For the lay reader
+
+- [docs/diagrams/explainer.svg](docs/diagrams/explainer.svg) &mdash; a one-page
+  summary in ordinary words: the question, one chart, the finding, and why it
+  matters. No background assumed.
+- [GLOSSARY.md](GLOSSARY.md) &mdash; every abbreviation this repo uses, defined.
+
+![license: MIT](https://img.shields.io/badge/license-MIT-blue) ![python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue) ![runtime dependencies: none](https://img.shields.io/badge/runtime%20dependencies-none-brightgreen) ![LLM results: Qwen3-8B pair](https://img.shields.io/badge/LLM%20results-Qwen3--8B%20pair-blue)
 
 trialgauntlet is a small agent **reliability** harness. Most agent evaluations report pass@1 on a
 stochastic setup, which averages over inconsistency: an agent that solves every task half the time and an
@@ -26,21 +34,38 @@ agent that solves half the tasks every time look identical. This harness
 
 ## LLM results
 
-<!-- LLM:BEGIN -->
-**LLM results: NOT YET RUN.**
+**LLM results: Qwen3-8B stock vs ablated pair, n=4 trials/task, k=2.** Pre-registered: `--env all
+--n 4 --k 2`, sampling temperature 0.7, top-p 0.8, top-k 20, Q8_0 GGUFs served under llama.cpp HIP on
+AMD gfx906, both arms driven from the shared Qwen3 chat template file
+(`gguf/qwen3-chat-template.jinja`, sha256-16 `a55ee1b1660128b7`). Full results:
+`results/qwen3-8b-{stock,ablated}-n4.json`.
 
-| model | env | pass@1 | pass@4 | pass^4 | gap |
-|---|---|---|---|---|---|
-| (none) | fleet | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |
-| (none) | ledger | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |
-| (none) | config | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |
+<!-- LLM:BEGIN -->
+| model | env | n | k | pass@1 | pass@k | pass^k | gap |
+|---|---|---|---|---|---|---|---|
+| qwen3-8b-ablated | config | 4 | 2 | 5.7% | 11.4% | 0.0% | 5.7% |
+| qwen3-8b-ablated | fleet | 4 | 2 | 54.3% | 68.9% | 39.7% | 14.6% |
+| qwen3-8b-ablated | ledger | 4 | 2 | 42.9% | 57.9% | 27.8% | 15.1% |
+| qwen3-8b-stock | config | 4 | 2 | 15.3% | 22.7% | 8.0% | 7.4% |
+| qwen3-8b-stock | fleet | 4 | 2 | 55.3% | 70.5% | 40.1% | 15.2% |
+| qwen3-8b-stock | ledger | 4 | 2 | 42.9% | 56.7% | 29.0% | 13.9% |
 <!-- LLM:END -->
 
-No result file for a real model exists in this repository yet, so there is nothing to report. The adapter
+Overall policy-violation rate across the whole benchmark (552 trials/arm):
+**stock 20.4%**, **ablated 52.8%** — a 32.4 pp spread; ablated runs 2.6x the violation rate.
+Tool-misuse per trial: stock 0.01, ablated 0.04. Steps per trial 4.4 on both arms.
+
+Read: pass@1 is statistically indistinguishable on `fleet` and `ledger` (ablated is not uniformly
+less capable), but on `config` — the hardest environment, where safe tool-use discipline matters
+most — the ablated arm collapses to 5.7% pass@1 and 0.0% pass^2. The `outcome-only` interpretation
+ignores policy violations, so stock's 19.9% outcome-only on config vs 15.9% for ablated is the raw
+competence loss (≈ 4 pp); the remaining ≈ 9.6 pp of pass@1 drop is policy violations the ablated
+arm commits during otherwise-correct trajectories.
+
+Everything below is for the built-in **non-LLM** agents, which are real and reproducible: rerun
+`scripts/regenerate_results.sh` and the committed files come out byte for byte the same. The adapter
 is tested against a scripted mock server (runs against it are labelled `MOCK` and say nothing about any
-model). Everything below is for the built-in **non-LLM** agents, which are real and reproducible: rerun
-`scripts/regenerate_results.sh` and the committed files come out byte for byte the same. To produce real
-results see [Run it against a local model](#run-it-against-a-local-model).
+model). To produce more LLM results see [Run it against a local model](#run-it-against-a-local-model).
 
 ## What is in the box
 
