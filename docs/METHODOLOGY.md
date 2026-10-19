@@ -276,3 +276,9 @@ replacement.
 - The result file is `results/qwen3-4b-stock-native-n4.json`; the README table gains one row and
   the "format failure" paragraph gains one sentence saying what happened under the native
   template. Nothing else in the README changes because of this cell.
+
+**Amendment to the cell above (2026-10-19, before any trial completed).** `-c 8192 -np 4` gives
+each of the four slots 2,048 tokens of context, and the environments' first prompt is about
+2,300 tokens, so every request failed with `exceed_context_size_error` before a single trial
+ran. The server is re-launched with `-c 32768 -np 4` (8,192 tokens per slot); nothing else
+changes. The failed attempt produced no trials and no result file.
