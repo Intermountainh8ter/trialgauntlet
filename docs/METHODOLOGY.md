@@ -245,3 +245,34 @@ trial seed, `tool_choice: auto` and `parallel_tool_calls: false`.
 
 Nothing in this adapter is tuned to a particular model. Results depend on the server's sampling,
 chat template and quantization; record those alongside any number you publish.
+
+---
+
+## Pre-registered cell: `qwen3-4b-stock-native` (added 2026-10-19, before the run)
+
+The committed `qwen3-4b-stock` row scored 0% on every environment with 168 to 176 `no_action`
+terminations per environment: under the shared Qwen3 chat template (SHA-256 prefix `a55ee1b1`)
+the Qwen3-4B-Instruct-2507 GGUF emits its tool-call JSON followed by `</tool_call>` without the
+opening tag, so the server returns it as plain text and the harness (`parse_text_tools=false`)
+sees no tool call. That row stays as it is: a format failure under that template.
+
+This cell asks one question: does the same model, under the chat template embedded in its own
+GGUF, produce parsed tool calls, and if so what does it score? It is one new row, not a
+replacement.
+
+- Model file: `qwen3-4b-stock-Q8_0.gguf`, SHA-256 prefix `377104ddffa29e86` (same file as the
+  committed row).
+- Server: llama.cpp `llama-server` (HIP, same build as every other row), `--jinja` with the
+  GGUF's embedded template (SHA-256 prefix `64f85b198065d0fb`, identical to
+  `qwen3-chat-template-4b.jinja`), `-c 8192 -np 4`, no reasoning-budget flag (Instruct-2507 has
+  no thinking mode), alias `qwen3-4b-stock-native`, port 8092, GPU 1.
+- Harness settings identical to the committed rows: `--env all --n 4 --k 2`, temperature 0.7,
+  top-p 0.8, top-k 20, max_tokens 1024, `parse_text_tools=false`, seed 0, 1,000 bootstrap
+  resamples.
+- Prediction: none registered. If the model still terminates `no_action` on most trials, that is
+  reported as a second format failure, not a capability result. If it produces parsed tool
+  calls, the row is read exactly like the 8B and 14B rows, and the comparison that matters is
+  against the 8B stock row, not against the 0% row.
+- The result file is `results/qwen3-4b-stock-native-n4.json`; the README table gains one row and
+  the "format failure" paragraph gains one sentence saying what happened under the native
+  template. Nothing else in the README changes because of this cell.
