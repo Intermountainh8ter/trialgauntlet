@@ -47,6 +47,9 @@ served under llama.cpp HIP on AMD gfx906, every arm driven from the shared Qwen3
 | qwen3-4b-stock | config | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
 | qwen3-4b-stock | fleet | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
 | qwen3-4b-stock | ledger | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
+| qwen3-4b-stock-native | config | 4 | 2 | 1.1% | 1.9% | 0.4% | 0.8% | 7.4% | 0.57 |
+| qwen3-4b-stock-native | fleet | 4 | 2 | 28.8% | 37.2% | 20.5% | 8.3% | 29.8% | 0.12 |
+| qwen3-4b-stock-native | ledger | 4 | 2 | 3.6% | 4.8% | 2.4% | 1.2% | 3.6% | 0.12 |
 | qwen3-8b-stock | config | 4 | 2 | 15.3% | 22.7% | 8.0% | 7.4% | 19.9% | 0.21 |
 | qwen3-8b-stock | fleet | 4 | 2 | 55.3% | 70.5% | 40.1% | 15.2% | 56.2% | 0.04 |
 | qwen3-8b-stock | ledger | 4 | 2 | 42.9% | 56.7% | 29.0% | 13.9% | 43.5% | 0.02 |
@@ -94,7 +97,13 @@ confounded by the no-action share.
 **Qwen3-4B stock: a format failure, not a capability result.** All 552 trials terminated `no_action`
 (0.0 steps per trial, 0.0% on every metric). Under the shared template the 4B model emitted its tool-call
 JSON as plain text without the opening `<tool_call>` tag, the server's tool parser therefore returned no
-tool calls, and with `parse_text_tools` off (the pre-registered setting) the harness recorded no action.
+tool calls, and with `parse_text_tools` off (the pre-registered setting) the harness recorded no action. **Under its own embedded template (`qwen3-4b-stock-native`, pre-registered in
+docs/METHODOLOGY.md before the run, served with `-c 32768 -np 4` after a context amendment), the same
+model does emit parsed tool calls: config 1.1% / fleet 28.8% / ledger 3.6% pass@1, outcome-only 7.4% /
+29.8% / 3.6%, policy violations 0.57 / 0.12 / 0.12 per trial. 373 of 552 trials still ended
+`no_action` (the model often answers in prose instead of calling a tool), so the row is a weak-capability
+result with a residual format component, not a clean capability number. It is compared with the 8B stock
+row, not with the 0% row, and it does not change any other row.**
 The row is kept as run. A rerun with the model's own template or with text-tool parsing enabled would be a
 new, separately pre-registered cell, not a replacement for this one.
 
