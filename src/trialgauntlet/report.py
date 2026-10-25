@@ -6,6 +6,7 @@ file the report refuses to run (:class:`ReportError`) rather than render an empt
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -24,13 +25,22 @@ class ReportError(Exception):
 Doc = dict[str, Any]
 
 
+def _is_analysis_file(path: Path) -> bool:
+    """Experiment outputs (``scripts/*.py``) share ``results/`` but carry no results schema; directory scans skip them."""
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    return isinstance(doc, dict) and "schema" not in doc and "pass_hat_k" in doc and "provenance" in doc
+
+
 def collect(paths: Sequence[Path]) -> list[tuple[Path, Doc]]:
     """Load every ``*.json`` under the given files/directories (non-recursive for directories)."""
     files: list[Path] = []
     for p in paths:
         p = Path(p)
         if p.is_dir():
-            files.extend(sorted(x for x in p.glob("*.json")))
+            files.extend(sorted(x for x in p.glob("*.json") if not _is_analysis_file(x)))
         elif p.is_file():
             files.append(p)
         else:

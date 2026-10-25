@@ -1,0 +1,185 @@
+{
+  "config": {
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k_max": 8,
+    "n": 32,
+    "n_boot": 1000,
+    "tasks": 138,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "label": "SIMULATED noisy oracle (seeded Bernoulli by tier) plus the real seeded random-tool baseline",
+  "pass_hat_k": {
+    "1": {
+      "gap_ci95": [
+        0.0,
+        0.0
+      ],
+      "gap_vs_independence": 0.0,
+      "independence": 0.795516,
+      "pass_hat": 0.795516
+    },
+    "2": {
+      "gap_ci95": [
+        0.017845,
+        0.026395
+      ],
+      "gap_vs_independence": 0.022147,
+      "independence": 0.632846,
+      "pass_hat": 0.654994
+    },
+    "3": {
+      "gap_ci95": [
+        0.041912,
+        0.060584
+      ],
+      "gap_vs_independence": 0.051382,
+      "independence": 0.503439,
+      "pass_hat": 0.554821
+    },
+    "4": {
+      "gap_ci95": [
+        0.065657,
+        0.093876
+      ],
+      "gap_vs_independence": 0.080046,
+      "independence": 0.400494,
+      "pass_hat": 0.48054
+    },
+    "5": {
+      "gap_ci95": [
+        0.086539,
+        0.121572
+      ],
+      "gap_vs_independence": 0.104687,
+      "independence": 0.3186,
+      "pass_hat": 0.423287
+    },
+    "6": {
+      "gap_ci95": [
+        0.102969,
+        0.143863
+      ],
+      "gap_vs_independence": 0.124142,
+      "independence": 0.253451,
+      "pass_hat": 0.377594
+    },
+    "7": {
+      "gap_ci95": [
+        0.114365,
+        0.160003
+      ],
+      "gap_vs_independence": 0.138422,
+      "independence": 0.201625,
+      "pass_hat": 0.340046
+    },
+    "8": {
+      "gap_ci95": [
+        0.12191,
+        0.172957
+      ],
+      "gap_vs_independence": 0.148073,
+      "independence": 0.160396,
+      "pass_hat": 0.308469
+    }
+  },
+  "provenance": {
+    "command": "python3 scripts/passk_decay.py --seed 7 --n 32 --k-max 8 --out results/31-passk-decay.json",
+    "data_sources": [
+      {
+        "license": "arXiv preprint, definition of pass^k only; no data used",
+        "url": "https://arxiv.org/pdf/2406.12045"
+      }
+    ],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-10-25T12:59:03Z",
+    "wall_s": 2.21
+  },
+  "random_baseline_nonzero_k": [
+    1
+  ],
+  "random_baseline_pass_hat_k": {
+    "1": {
+      "gap_ci95": [
+        0.0,
+        0.0
+      ],
+      "gap_vs_independence": 0.0,
+      "independence": 0.000906,
+      "pass_hat": 0.000906
+    },
+    "2": {
+      "gap_ci95": [
+        -3e-06,
+        -0.0
+      ],
+      "gap_vs_independence": -1e-06,
+      "independence": 1e-06,
+      "pass_hat": 0.0
+    },
+    "3": {
+      "gap_ci95": [
+        -0.0,
+        -0.0
+      ],
+      "gap_vs_independence": -0.0,
+      "independence": 0.0,
+      "pass_hat": 0.0
+    },
+    "4": {
+      "gap_ci95": [
+        -0.0,
+        -0.0
+      ],
+      "gap_vs_independence": -0.0,
+      "independence": 0.0,
+      "pass_hat": 0.0
+    },
+    "5": {
+      "gap_ci95": [
+        -0.0,
+        -0.0
+      ],
+      "gap_vs_independence": -0.0,
+      "independence": 0.0,
+      "pass_hat": 0.0
+    },
+    "6": {
+      "gap_ci95": [
+        -0.0,
+        -0.0
+      ],
+      "gap_vs_independence": -0.0,
+      "independence": 0.0,
+      "pass_hat": 0.0
+    },
+    "7": {
+      "gap_ci95": [
+        -0.0,
+        -0.0
+      ],
+      "gap_vs_independence": -0.0,
+      "independence": 0.0,
+      "pass_hat": 0.0
+    },
+    "8": {
+      "gap_ci95": [
+        -0.0,
+        -0.0
+      ],
+      "gap_vs_independence": -0.0,
+      "independence": 0.0,
+      "pass_hat": 0.0
+    }
+  }
+}
