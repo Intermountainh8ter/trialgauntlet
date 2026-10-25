@@ -31,7 +31,7 @@ def _is_analysis_file(path: Path) -> bool:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
-    return isinstance(doc, dict) and "schema" not in doc and ("pass_hat_k" in doc or "chance_audit" in doc or "escalate_guess" in doc) and "provenance" in doc
+    return isinstance(doc, dict) and "schema" not in doc and ("pass_hat_k" in doc or "chance_audit" in doc or "escalate_guess" in doc or "ci_width" in doc) and "provenance" in doc
 
 
 def collect(paths: Sequence[Path]) -> list[tuple[Path, Doc]]:

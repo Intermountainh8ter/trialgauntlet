@@ -1,0 +1,71 @@
+{
+  "ci_width": {
+    "by_n": {
+      "16": {
+        "ci95": [
+          0.252332,
+          0.366397
+        ],
+        "mean_pass_hat": 0.307905,
+        "width": 0.114065
+      },
+      "32": {
+        "ci95": [
+          0.258916,
+          0.358391
+        ],
+        "mean_pass_hat": 0.308469,
+        "width": 0.099475
+      },
+      "64": {
+        "ci95": [
+          0.255588,
+          0.345205
+        ],
+        "mean_pass_hat": 0.300015,
+        "width": 0.089617
+      },
+      "8": {
+        "ci95": [
+          0.231884,
+          0.376812
+        ],
+        "mean_pass_hat": 0.304348,
+        "width": 0.144928
+      }
+    },
+    "ratio_n8_over_n64_k8": 1.617193
+  },
+  "config": {
+    "boot": 1000,
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k": 8,
+    "n_list": [
+      8,
+      16,
+      32,
+      64
+    ],
+    "tasks": 138,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "label": "SIMULATED noisy oracle (seeded Bernoulli by tier); task-level bootstrap interval width vs n",
+  "provenance": {
+    "command": "python3 scripts/ci_width.py --seed 7 --k 8 --n-list 8,16,32,64 --boot 1000 --out results/40-ci-width.json",
+    "data_sources": [],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-10-25T22:09:54Z",
+    "wall_s": 0.16
+  }
+}

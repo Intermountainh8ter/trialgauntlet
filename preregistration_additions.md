@@ -48,3 +48,18 @@ full grading that also requires the correct blocking entity, its pass@8 stays be
 of 0.30 or more.
 
 **Run.** `python3 scripts/escalate_guess.py --seed 7 --n 32 --k-max 8 --out results/38-escalate-guess.json`
+
+## 2026-10-25T22:09:44Z ci-width proposal:fc93210c1a4b458ca86b28f182915af52a7b0d73730f5335c896f1dcc8f545e9
+
+**Hypothesis.** For the SIMULATED tier-dependent noisy oracle (fleet, ledger and config pooled, seed 7, 1000
+task-level bootstrap resamples), the 95% interval width of mean pass^8 at n=8 trials per task is less than 1.25
+times the width at n=64, because task sampling rather than trial count dominates the interval; the ratio stays at
+or above 1.0.
+
+**Metric.** `/ci_width/ratio_n8_over_n64_k8` in `results/40-ci-width.json`.
+
+**Expected.** Ratio between 1.0 and 1.25.
+
+**Falsifier.** A ratio of 1.25 or more, or below 1.0.
+
+**Run.** `python3 scripts/ci_width.py --seed 7 --k 8 --n-list 8,16,32,64 --boot 1000 --out results/40-ci-width.json`
