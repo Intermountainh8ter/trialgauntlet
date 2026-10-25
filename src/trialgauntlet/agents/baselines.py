@@ -109,3 +109,38 @@ class RandomToolAgent(Agent):
         args = {name: self._value(spec) for name, spec in props.items() if name in required or self._rng.random() < 0.5}
         self._n += 1
         return Action(tool_call=ToolCall(tool.name, args, id=f"call_{self._n}"))
+
+
+class EscalateGuessAgent(Agent):
+    """Escalates at once with a uniformly random category and a random identifier from the first observation.
+
+    A stochastic hand-off baseline (the shipped always-refuse agent is the fixed version). It reads
+    nothing but the tool schema and the first observation. Deterministic given the trial seed.
+    """
+
+    name = "escalate-guess"
+
+    def __init__(self) -> None:
+        self._rng = random.Random(0)
+        self._categories: list[str] = []
+        self._sent = False
+
+    def start(self, ctx: EpisodeContext) -> None:
+        self._rng = random.Random(ctx.trial_seed)
+        spec = next(t for t in ctx.tools if t.name == "escalate")
+        self._categories = list(spec.parameters["properties"]["category"]["enum"])
+        self._sent = False
+
+    def act(self, observation: str) -> Action:
+        if self._sent:
+            return Action()
+        self._sent = True
+        vocab: list[str] = []
+        with contextlib.suppress(json.JSONDecodeError):
+            _harvest(json.loads(observation), vocab)
+        args = {
+            "category": self._rng.choice(self._categories),
+            "entity_id": self._rng.choice(vocab) if vocab else "n/a",
+            "reason": "guess",
+        }
+        return Action(tool_call=ToolCall("escalate", args, id="call_1"))

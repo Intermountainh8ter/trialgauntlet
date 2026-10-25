@@ -32,3 +32,19 @@ minus random-baseline mean pass^8 over all tasks.
 **Falsifier.** A gap over chance at k=8 below 0.10, or a random-baseline pass^8 of 0.05 or more.
 
 **Run.** `python3 scripts/chance_floor.py --seed 7 --n 32 --k-max 8 --out results/32-chance-floor.json`
+
+## 2026-10-25T21:59:23Z escalate-guess proposal:4381c3d79c920d783e284cba1c0dab496e31c3ca31013e37dc46e395832f99bc
+
+**Hypothesis.** On escalation-required tasks (4 categories per environment, n=32 trials per task, seed 7), a
+seeded random-category escalate-guesser has category-only mean pass@8 of at least 0.80 while its category-only
+mean pass^8 stays below 0.01, so a hand-off floor inflates pass@k with k and stays invisible in pass^k; under
+full grading that also requires the correct blocking entity, its pass@8 stays below 0.30.
+
+**Metric.** `/escalate_guess/category_only/pass_at_k/8` in `results/38-escalate-guess.json`.
+
+**Expected.** Increases with k, at least 0.80 at k=8 (range 0.80 to 1.0).
+
+**Falsifier.** Category-only pass@8 below 0.80, or category-only pass^8 of 0.01 or more, or full-grading pass@8
+of 0.30 or more.
+
+**Run.** `python3 scripts/escalate_guess.py --seed 7 --n 32 --k-max 8 --out results/38-escalate-guess.json`
