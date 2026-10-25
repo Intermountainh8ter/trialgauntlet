@@ -294,3 +294,11 @@ docs/                METHODOLOGY, ENVIRONMENTS, SUITES, THREATS_TO_VALIDITY, FLO
 
 Contributing (including the required audit for a new environment): [`CONTRIBUTING.md`](CONTRIBUTING.md).
 Changes: [`CHANGELOG.md`](CHANGELOG.md). License: MIT.
+
+## Chance-floor audit (SIMULATED oracle, real random baseline)
+
+`python3 scripts/chance_floor.py --seed 7 --n 32 --k-max 8 --out results/32-chance-floor.json` subtracts the
+seeded random-tool baseline's pass^k from a SIMULATED tier-dependent noisy oracle's pass^k (no model, no
+environment executed for the oracle). At k=8 the oracle's pass^8 is 0.308469, the random baseline's is 0.0, and
+the gap is 0.308469 (task-level bootstrap 95% CI 0.259541 to 0.35766). The random baseline does not move the
+headline table in this setup; this says nothing about any real model.

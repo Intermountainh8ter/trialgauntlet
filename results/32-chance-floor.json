@@ -1,0 +1,112 @@
+{
+  "chance_audit": {
+    "curve": {
+      "1": {
+        "gap_ci95": [
+          0.76721,
+          0.821105
+        ],
+        "gap_over_chance": 0.794611,
+        "oracle_pass_hat": 0.795516,
+        "random_pass_hat": 0.000906
+      },
+      "2": {
+        "gap_ci95": [
+          0.614247,
+          0.695141
+        ],
+        "gap_over_chance": 0.654994,
+        "oracle_pass_hat": 0.654994,
+        "random_pass_hat": 0.0
+      },
+      "3": {
+        "gap_ci95": [
+          0.507463,
+          0.601901
+        ],
+        "gap_over_chance": 0.554821,
+        "oracle_pass_hat": 0.554821,
+        "random_pass_hat": 0.0
+      },
+      "4": {
+        "gap_ci95": [
+          0.431028,
+          0.529712
+        ],
+        "gap_over_chance": 0.48054,
+        "oracle_pass_hat": 0.48054,
+        "random_pass_hat": 0.0
+      },
+      "5": {
+        "gap_ci95": [
+          0.371485,
+          0.473385
+        ],
+        "gap_over_chance": 0.423287,
+        "oracle_pass_hat": 0.423287,
+        "random_pass_hat": 0.0
+      },
+      "6": {
+        "gap_ci95": [
+          0.326068,
+          0.428052
+        ],
+        "gap_over_chance": 0.377594,
+        "oracle_pass_hat": 0.377594,
+        "random_pass_hat": 0.0
+      },
+      "7": {
+        "gap_ci95": [
+          0.2891,
+          0.390243
+        ],
+        "gap_over_chance": 0.340046,
+        "oracle_pass_hat": 0.340046,
+        "random_pass_hat": 0.0
+      },
+      "8": {
+        "gap_ci95": [
+          0.259541,
+          0.35766
+        ],
+        "gap_over_chance": 0.308469,
+        "oracle_pass_hat": 0.308469,
+        "random_pass_hat": 0.0
+      }
+    },
+    "max_gap_over_chance_k8": 0.308469,
+    "random_pass_hat_k8": 0.0
+  },
+  "config": {
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k_max": 8,
+    "n": 32,
+    "n_boot": 1000,
+    "tasks": 138,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "label": "SIMULATED noisy oracle (seeded Bernoulli by tier) minus the real seeded random-tool baseline",
+  "provenance": {
+    "command": "python3 scripts/chance_floor.py --seed 7 --n 32 --k-max 8 --out results/32-chance-floor.json",
+    "data_sources": [
+      {
+        "license": "arXiv preprint, definition of pass^k only; no data used",
+        "url": "https://arxiv.org/pdf/2406.12045"
+      }
+    ],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-10-25T13:07:49Z",
+    "wall_s": 2.168
+  }
+}
