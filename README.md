@@ -44,24 +44,24 @@ served under llama.cpp HIP on AMD gfx906, every arm driven from the shared Qwen3
 <!-- LLM:BEGIN -->
 | model | env | n | k | pass@1 | pass@k | pass^k | gap | outcome-only | viol/trial |
 |---|---|---|---|---|---|---|---|---|---|
+| qwen3-14b-ablated | config | 4 | 2 | 13.6% | 16.3% | 11.0% | 2.7% | 21.6% | 0.17 |
+| qwen3-14b-ablated | fleet | 4 | 2 | 46.6% | 50.0% | 43.3% | 3.4% | 66.3% | 0.46 |
+| qwen3-14b-ablated | ledger | 4 | 2 | 19.6% | 22.2% | 17.1% | 2.6% | 67.3% | 1.22 |
+| qwen3-14b-stock | config | 4 | 2 | 22.7% | 24.6% | 20.8% | 1.9% | 22.7% | 0.09 |
+| qwen3-14b-stock | fleet | 4 | 2 | 46.6% | 48.4% | 44.9% | 1.8% | 63.5% | 0.33 |
+| qwen3-14b-stock | ledger | 4 | 2 | 37.5% | 42.1% | 32.9% | 4.6% | 66.7% | 0.82 |
 | qwen3-4b-stock | config | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
 | qwen3-4b-stock | fleet | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
 | qwen3-4b-stock | ledger | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
 | qwen3-4b-stock-native | config | 4 | 2 | 1.1% | 1.9% | 0.4% | 0.8% | 7.4% | 0.57 |
 | qwen3-4b-stock-native | fleet | 4 | 2 | 28.8% | 37.2% | 20.5% | 8.3% | 29.8% | 0.12 |
 | qwen3-4b-stock-native | ledger | 4 | 2 | 3.6% | 4.8% | 2.4% | 1.2% | 3.6% | 0.12 |
-| qwen3-8b-stock | config | 4 | 2 | 15.3% | 22.7% | 8.0% | 7.4% | 19.9% | 0.21 |
-| qwen3-8b-stock | fleet | 4 | 2 | 55.3% | 70.5% | 40.1% | 15.2% | 56.2% | 0.04 |
-| qwen3-8b-stock | ledger | 4 | 2 | 42.9% | 56.7% | 29.0% | 13.9% | 43.5% | 0.02 |
 | qwen3-8b-ablated | config | 4 | 2 | 5.7% | 11.4% | 0.0% | 5.7% | 15.9% | 0.59 |
 | qwen3-8b-ablated | fleet | 4 | 2 | 54.3% | 68.9% | 39.7% | 14.6% | 55.3% | 0.06 |
 | qwen3-8b-ablated | ledger | 4 | 2 | 42.9% | 57.9% | 27.8% | 15.1% | 42.9% | 0.01 |
-| qwen3-14b-stock | config | 4 | 2 | 22.7% | 24.6% | 20.8% | 1.9% | 22.7% | 0.09 |
-| qwen3-14b-stock | fleet | 4 | 2 | 46.6% | 48.4% | 44.9% | 1.8% | 63.5% | 0.33 |
-| qwen3-14b-stock | ledger | 4 | 2 | 37.5% | 42.1% | 32.9% | 4.6% | 66.7% | 0.82 |
-| qwen3-14b-ablated | config | 4 | 2 | 13.6% | 16.3% | 11.0% | 2.7% | 21.6% | 0.17 |
-| qwen3-14b-ablated | fleet | 4 | 2 | 46.6% | 50.0% | 43.3% | 3.4% | 66.3% | 0.46 |
-| qwen3-14b-ablated | ledger | 4 | 2 | 19.6% | 22.2% | 17.1% | 2.6% | 67.3% | 1.22 |
+| qwen3-8b-stock | config | 4 | 2 | 15.3% | 22.7% | 8.0% | 7.4% | 19.9% | 0.21 |
+| qwen3-8b-stock | fleet | 4 | 2 | 55.3% | 70.5% | 40.1% | 15.2% | 56.2% | 0.04 |
+| qwen3-8b-stock | ledger | 4 | 2 | 42.9% | 56.7% | 29.0% | 13.9% | 43.5% | 0.02 |
 <!-- LLM:END -->
 
 Policy violations per trial, trial-weighted over the whole benchmark (552 trials per arm):
