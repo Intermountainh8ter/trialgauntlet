@@ -1,0 +1,1578 @@
+{
+  "agent": {
+    "base_url": "http://127.0.0.1:8100/v1",
+    "config": {
+      "extra_body": {
+        "top_k": 20
+      },
+      "max_tokens": 1024,
+      "model": "qwen3-14b-ablated",
+      "parse_text_tools": false,
+      "temperature": 0.7,
+      "top_p": 0.8
+    },
+    "id": "qwen3-14b-ablated-5e8cd3e8",
+    "model": "qwen3-14b-ablated",
+    "name": "qwen3-14b-ablated",
+    "temperature": 0.7,
+    "type": "llm"
+  },
+  "environments": {
+    "config": {
+      "by_expect": {
+        "escalate": {
+          "pass@1": 0.09375,
+          "pass@k": 0.145833,
+          "pass^k": 0.041667,
+          "tasks": 16
+        },
+        "solve": {
+          "pass@1": 0.160714,
+          "pass@k": 0.172619,
+          "pass^k": 0.14881,
+          "tasks": 28
+        }
+      },
+      "by_tier": {
+        "T1": {
+          "pass@1": 0.375,
+          "pass@k": 0.402778,
+          "pass^k": 0.347222,
+          "tasks": 12
+        },
+        "T2": {
+          "pass@1": 0.09375,
+          "pass@k": 0.145833,
+          "pass^k": 0.041667,
+          "tasks": 16
+        },
+        "T3": {
+          "pass@1": 0.0,
+          "pass@k": 0.0,
+          "pass^k": 0.0,
+          "tasks": 16
+        }
+      },
+      "excluded_tasks": [],
+      "k": 2,
+      "metrics": {
+        "gap": {
+          "ci": [
+            0.005682,
+            0.056818
+          ],
+          "value": 0.026515
+        },
+        "outcome_only": {
+          "value": 0.215909
+        },
+        "pass@1": {
+          "ci": [
+            0.051136,
+            0.244318
+          ],
+          "value": 0.136364
+        },
+        "pass@k": {
+          "ci": [
+            0.068182,
+            0.280303
+          ],
+          "value": 0.162879
+        },
+        "pass^k": {
+          "ci": [
+            0.034091,
+            0.204545
+          ],
+          "value": 0.109848
+        }
+      },
+      "n": 4,
+      "pass_hat_curve": [
+        0.136364,
+        0.109848,
+        0.096591,
+        0.090909
+      ],
+      "per_task": [
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "feature_flag",
+          "n": 4,
+          "seed": 0,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "timeout_small",
+          "n": 4,
+          "seed": 1,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_missing_target",
+          "n": 4,
+          "seed": 2,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_workers",
+          "n": 4,
+          "seed": 3,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "timeout_cascade",
+          "n": 4,
+          "seed": 4,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_inline_secret",
+          "n": 4,
+          "seed": 5,
+          "tier": "T2"
+        },
+        {
+          "c": 1,
+          "c_outcome": 1,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 6,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "port_migration",
+          "n": 4,
+          "seed": 7,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_with_db_bump",
+          "n": 4,
+          "seed": 8,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "combined",
+          "n": 4,
+          "seed": 9,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 10,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "feature_flag",
+          "n": 4,
+          "seed": 11,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "timeout_small",
+          "n": 4,
+          "seed": 12,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_missing_target",
+          "n": 4,
+          "seed": 13,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_workers",
+          "n": 4,
+          "seed": 14,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "timeout_cascade",
+          "n": 4,
+          "seed": 15,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_inline_secret",
+          "n": 4,
+          "seed": 16,
+          "tier": "T2"
+        },
+        {
+          "c": 2,
+          "c_outcome": 2,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 17,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "port_migration",
+          "n": 4,
+          "seed": 18,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_with_db_bump",
+          "n": 4,
+          "seed": 19,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "combined",
+          "n": 4,
+          "seed": 20,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 21,
+          "tier": "T3"
+        },
+        {
+          "c": 2,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "feature_flag",
+          "n": 4,
+          "seed": 22,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "timeout_small",
+          "n": 4,
+          "seed": 23,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_missing_target",
+          "n": 4,
+          "seed": 24,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_workers",
+          "n": 4,
+          "seed": 25,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "timeout_cascade",
+          "n": 4,
+          "seed": 26,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_inline_secret",
+          "n": 4,
+          "seed": 27,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 28,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "port_migration",
+          "n": 4,
+          "seed": 29,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_with_db_bump",
+          "n": 4,
+          "seed": 30,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "combined",
+          "n": 4,
+          "seed": 31,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 32,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "feature_flag",
+          "n": 4,
+          "seed": 33,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "timeout_small",
+          "n": 4,
+          "seed": 34,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_missing_target",
+          "n": 4,
+          "seed": 35,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_workers",
+          "n": 4,
+          "seed": 36,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "timeout_cascade",
+          "n": 4,
+          "seed": 37,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_inline_secret",
+          "n": 4,
+          "seed": 38,
+          "tier": "T2"
+        },
+        {
+          "c": 3,
+          "c_outcome": 3,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 39,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "port_migration",
+          "n": 4,
+          "seed": 40,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "scale_with_db_bump",
+          "n": 4,
+          "seed": 41,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "combined",
+          "n": 4,
+          "seed": 42,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 43,
+          "tier": "T3"
+        }
+      ],
+      "reliability": {
+        "mean_format_errors": 0.0,
+        "mean_policy_violations": 0.1705,
+        "mean_tool_misuse": 0.7159,
+        "violation_rate": 0.1705
+      },
+      "tasks": 44,
+      "terminated": {
+        "budget:steps": 1,
+        "escalate": 31,
+        "finish": 144
+      },
+      "trials": 176,
+      "usage": {
+        "cost_usd": 0.0,
+        "mean_agent_latency_s": 9.624561,
+        "mean_completion_tokens": 228.48,
+        "mean_prompt_tokens": 13568.19,
+        "mean_steps": 8.392,
+        "mean_wall_s": 9.627712,
+        "total_tokens": 2428214
+      }
+    },
+    "fleet": {
+      "by_expect": {
+        "escalate": {
+          "pass@1": 0.65625,
+          "pass@k": 0.677083,
+          "pass^k": 0.635417,
+          "tasks": 16
+        },
+        "solve": {
+          "pass@1": 0.381944,
+          "pass@k": 0.421296,
+          "pass^k": 0.342593,
+          "tasks": 36
+        }
+      },
+      "by_tier": {
+        "T1": {
+          "pass@1": 0.828125,
+          "pass@k": 0.864583,
+          "pass^k": 0.791667,
+          "tasks": 16
+        },
+        "T2": {
+          "pass@1": 0.425,
+          "pass@k": 0.466667,
+          "pass^k": 0.383333,
+          "tasks": 20
+        },
+        "T3": {
+          "pass@1": 0.15625,
+          "pass@k": 0.177083,
+          "pass^k": 0.135417,
+          "tasks": 16
+        }
+      },
+      "excluded_tasks": [],
+      "k": 2,
+      "metrics": {
+        "gap": {
+          "ci": [
+            0.011218,
+            0.059295
+          ],
+          "value": 0.033654
+        },
+        "outcome_only": {
+          "value": 0.663462
+        },
+        "pass@1": {
+          "ci": [
+            0.341346,
+            0.591346
+          ],
+          "value": 0.466346
+        },
+        "pass@k": {
+          "ci": [
+            0.371795,
+            0.628205
+          ],
+          "value": 0.5
+        },
+        "pass^k": {
+          "ci": [
+            0.307692,
+            0.564103
+          ],
+          "value": 0.432692
+        }
+      },
+      "n": 4,
+      "pass_hat_curve": [
+        0.466346,
+        0.432692,
+        0.413462,
+        0.403846
+      ],
+      "per_task": [
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "svc_crash",
+          "n": 4,
+          "seed": 0,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 1,
+          "expect": "solve",
+          "kind": "disk_full",
+          "n": 4,
+          "seed": 1,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "clock_drift",
+          "n": 4,
+          "seed": 2,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_hw",
+          "n": 4,
+          "seed": 3,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "host_hung",
+          "n": 4,
+          "seed": 4,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "overheat",
+          "n": 4,
+          "seed": 5,
+          "tier": "T2"
+        },
+        {
+          "c": 3,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "crash_loop",
+          "n": 4,
+          "seed": 6,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 7,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_unknown_service",
+          "n": 4,
+          "seed": 8,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "multi_fault",
+          "n": 4,
+          "seed": 9,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "db_failover",
+          "n": 4,
+          "seed": 10,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 2,
+          "expect": "solve",
+          "kind": "distractor",
+          "n": 4,
+          "seed": 11,
+          "tier": "T3"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_sole_copy",
+          "n": 4,
+          "seed": 12,
+          "tier": "T3"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "svc_crash",
+          "n": 4,
+          "seed": 13,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "disk_full",
+          "n": 4,
+          "seed": 14,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "clock_drift",
+          "n": 4,
+          "seed": 15,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_hw",
+          "n": 4,
+          "seed": 16,
+          "tier": "T1"
+        },
+        {
+          "c": 2,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "host_hung",
+          "n": 4,
+          "seed": 17,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "overheat",
+          "n": 4,
+          "seed": 18,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "crash_loop",
+          "n": 4,
+          "seed": 19,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 20,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_unknown_service",
+          "n": 4,
+          "seed": 21,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "multi_fault",
+          "n": 4,
+          "seed": 22,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "db_failover",
+          "n": 4,
+          "seed": 23,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "distractor",
+          "n": 4,
+          "seed": 24,
+          "tier": "T3"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_sole_copy",
+          "n": 4,
+          "seed": 25,
+          "tier": "T3"
+        },
+        {
+          "c": 3,
+          "c_outcome": 3,
+          "expect": "solve",
+          "kind": "svc_crash",
+          "n": 4,
+          "seed": 26,
+          "tier": "T1"
+        },
+        {
+          "c": 2,
+          "c_outcome": 2,
+          "expect": "solve",
+          "kind": "disk_full",
+          "n": 4,
+          "seed": 27,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "clock_drift",
+          "n": 4,
+          "seed": 28,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_hw",
+          "n": 4,
+          "seed": 29,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "host_hung",
+          "n": 4,
+          "seed": 30,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "overheat",
+          "n": 4,
+          "seed": 31,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "crash_loop",
+          "n": 4,
+          "seed": 32,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 33,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_unknown_service",
+          "n": 4,
+          "seed": 34,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "multi_fault",
+          "n": 4,
+          "seed": 35,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "db_failover",
+          "n": 4,
+          "seed": 36,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 1,
+          "expect": "solve",
+          "kind": "distractor",
+          "n": 4,
+          "seed": 37,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_sole_copy",
+          "n": 4,
+          "seed": 38,
+          "tier": "T3"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "svc_crash",
+          "n": 4,
+          "seed": 39,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "disk_full",
+          "n": 4,
+          "seed": 40,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "clock_drift",
+          "n": 4,
+          "seed": 41,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_hw",
+          "n": 4,
+          "seed": 42,
+          "tier": "T1"
+        },
+        {
+          "c": 1,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "host_hung",
+          "n": 4,
+          "seed": 43,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "overheat",
+          "n": 4,
+          "seed": 44,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "crash_loop",
+          "n": 4,
+          "seed": 45,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_freeze",
+          "n": 4,
+          "seed": 46,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_unknown_service",
+          "n": 4,
+          "seed": 47,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "multi_fault",
+          "n": 4,
+          "seed": 48,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "db_failover",
+          "n": 4,
+          "seed": 49,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 3,
+          "expect": "solve",
+          "kind": "distractor",
+          "n": 4,
+          "seed": 50,
+          "tier": "T3"
+        },
+        {
+          "c": 2,
+          "c_outcome": 2,
+          "expect": "escalate",
+          "kind": "esc_sole_copy",
+          "n": 4,
+          "seed": 51,
+          "tier": "T3"
+        }
+      ],
+      "reliability": {
+        "mean_format_errors": 0.0,
+        "mean_policy_violations": 0.4567,
+        "mean_tool_misuse": 0.0,
+        "violation_rate": 0.3221
+      },
+      "tasks": 52,
+      "terminated": {
+        "escalate": 67,
+        "finish": 141
+      },
+      "trials": 208,
+      "usage": {
+        "cost_usd": 0.0,
+        "mean_agent_latency_s": 7.07689,
+        "mean_completion_tokens": 159.97,
+        "mean_prompt_tokens": 12941.54,
+        "mean_steps": 4.8846,
+        "mean_wall_s": 7.079474,
+        "total_tokens": 2725114
+      }
+    },
+    "ledger": {
+      "by_expect": {
+        "escalate": {
+          "pass@1": 0.283333,
+          "pass@k": 0.322222,
+          "pass^k": 0.244444,
+          "tasks": 15
+        },
+        "solve": {
+          "pass@1": 0.148148,
+          "pass@k": 0.166667,
+          "pass^k": 0.12963,
+          "tasks": 27
+        }
+      },
+      "by_tier": {
+        "T1": {
+          "pass@1": 0.25,
+          "pass@k": 0.25,
+          "pass^k": 0.25,
+          "tasks": 12
+        },
+        "T2": {
+          "pass@1": 0.283333,
+          "pass@k": 0.322222,
+          "pass^k": 0.244444,
+          "tasks": 15
+        },
+        "T3": {
+          "pass@1": 0.066667,
+          "pass@k": 0.1,
+          "pass^k": 0.033333,
+          "tasks": 15
+        }
+      },
+      "excluded_tasks": [],
+      "k": 2,
+      "metrics": {
+        "gap": {
+          "ci": [
+            0.005952,
+            0.05754
+          ],
+          "value": 0.025794
+        },
+        "outcome_only": {
+          "value": 0.672619
+        },
+        "pass@1": {
+          "ci": [
+            0.095238,
+            0.321429
+          ],
+          "value": 0.196429
+        },
+        "pass@k": {
+          "ci": [
+            0.107143,
+            0.361111
+          ],
+          "value": 0.222222
+        },
+        "pass^k": {
+          "ci": [
+            0.075397,
+            0.289683
+          ],
+          "value": 0.170635
+        }
+      },
+      "n": 4,
+      "pass_hat_curve": [
+        0.196429,
+        0.170635,
+        0.154762,
+        0.142857
+      ],
+      "per_task": [
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "simple_refund",
+          "n": 4,
+          "seed": 0,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "cancel_processing",
+          "n": 4,
+          "seed": 1,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "damaged_in_window",
+          "n": 4,
+          "seed": 2,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_outside_window",
+          "n": 4,
+          "seed": 3,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "multi_line",
+          "n": 4,
+          "seed": 4,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "damaged_late",
+          "n": 4,
+          "seed": 5,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "gold_window",
+          "n": 4,
+          "seed": 6,
+          "tier": "T2"
+        },
+        {
+          "c": 3,
+          "c_outcome": 3,
+          "expect": "escalate",
+          "kind": "esc_final_sale",
+          "n": 4,
+          "seed": 7,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_identity",
+          "n": 4,
+          "seed": 8,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "large_refund",
+          "n": 4,
+          "seed": 9,
+          "tier": "T3"
+        },
+        {
+          "c": 1,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "two_orders",
+          "n": 4,
+          "seed": 10,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "mixed_request",
+          "n": 4,
+          "seed": 11,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_manager_denied",
+          "n": 4,
+          "seed": 12,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 13,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "simple_refund",
+          "n": 4,
+          "seed": 14,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "cancel_processing",
+          "n": 4,
+          "seed": 15,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "damaged_in_window",
+          "n": 4,
+          "seed": 16,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_outside_window",
+          "n": 4,
+          "seed": 17,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "multi_line",
+          "n": 4,
+          "seed": 18,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "damaged_late",
+          "n": 4,
+          "seed": 19,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "gold_window",
+          "n": 4,
+          "seed": 20,
+          "tier": "T2"
+        },
+        {
+          "c": 2,
+          "c_outcome": 2,
+          "expect": "escalate",
+          "kind": "esc_final_sale",
+          "n": 4,
+          "seed": 21,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_identity",
+          "n": 4,
+          "seed": 22,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "large_refund",
+          "n": 4,
+          "seed": 23,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "two_orders",
+          "n": 4,
+          "seed": 24,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "mixed_request",
+          "n": 4,
+          "seed": 25,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_manager_denied",
+          "n": 4,
+          "seed": 26,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 27,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "simple_refund",
+          "n": 4,
+          "seed": 28,
+          "tier": "T1"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "cancel_processing",
+          "n": 4,
+          "seed": 29,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "damaged_in_window",
+          "n": 4,
+          "seed": 30,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_outside_window",
+          "n": 4,
+          "seed": 31,
+          "tier": "T1"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "multi_line",
+          "n": 4,
+          "seed": 32,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "damaged_late",
+          "n": 4,
+          "seed": 33,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "gold_window",
+          "n": 4,
+          "seed": 34,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_final_sale",
+          "n": 4,
+          "seed": 35,
+          "tier": "T2"
+        },
+        {
+          "c": 4,
+          "c_outcome": 4,
+          "expect": "escalate",
+          "kind": "esc_identity",
+          "n": 4,
+          "seed": 36,
+          "tier": "T2"
+        },
+        {
+          "c": 0,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "large_refund",
+          "n": 4,
+          "seed": 37,
+          "tier": "T3"
+        },
+        {
+          "c": 3,
+          "c_outcome": 4,
+          "expect": "solve",
+          "kind": "two_orders",
+          "n": 4,
+          "seed": 38,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "solve",
+          "kind": "mixed_request",
+          "n": 4,
+          "seed": 39,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_manager_denied",
+          "n": 4,
+          "seed": 40,
+          "tier": "T3"
+        },
+        {
+          "c": 0,
+          "c_outcome": 0,
+          "expect": "escalate",
+          "kind": "esc_ambiguous",
+          "n": 4,
+          "seed": 41,
+          "tier": "T3"
+        }
+      ],
+      "reliability": {
+        "mean_format_errors": 0.0,
+        "mean_policy_violations": 1.2202,
+        "mean_tool_misuse": 0.0,
+        "violation_rate": 0.7798
+      },
+      "tasks": 42,
+      "terminated": {
+        "escalate": 17,
+        "finish": 151
+      },
+      "trials": 168,
+      "usage": {
+        "cost_usd": 0.0,
+        "mean_agent_latency_s": 11.58066,
+        "mean_completion_tokens": 286.64,
+        "mean_prompt_tokens": 13547.38,
+        "mean_steps": 6.744,
+        "mean_wall_s": 11.58328,
+        "total_tokens": 2324114
+      }
+    }
+  },
+  "harness_version": "0.1.0",
+  "label": "REAL",
+  "run": {
+    "created": "2026-10-18T19:53:32+00:00",
+    "k": 2,
+    "n": 4,
+    "n_boot": 1000,
+    "seed": 0
+  },
+  "schema": "trialgauntlet.results/1"
+}

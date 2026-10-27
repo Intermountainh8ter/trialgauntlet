@@ -37,9 +37,10 @@ def test_readme_and_suites_tables_match_a_fresh_run():
     assert docgen.main(["--check"]) == 0
 
 
-def test_readme_states_that_llm_results_have_not_been_run():
+def test_readme_states_that_llm_results_have_been_run():
     text = (ROOT / "README.md").read_text()
-    assert "LLM results: NOT YET RUN" in text
+    assert "LLM results: Qwen3 stock vs ablated pairs" in text
+    assert "qwen3-8b-stock" in text and "qwen3-8b-ablated" in text
 
 
 def test_committed_baseline_results_are_what_the_audit_produces(tmp_path):

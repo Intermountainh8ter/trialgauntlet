@@ -2,7 +2,15 @@
 
 **Report pass^k next to pass@k. Audit every environment against do-nothing agents before you trust it.**
 
-![license: MIT](https://img.shields.io/badge/license-MIT-blue) ![python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue) ![runtime dependencies: none](https://img.shields.io/badge/runtime%20dependencies-none-brightgreen) ![LLM results: not yet run](https://img.shields.io/badge/LLM%20results-not%20yet%20run-lightgrey)
+
+## For the lay reader
+
+- [docs/diagrams/explainer.svg](docs/diagrams/explainer.svg) &mdash; a one-page
+  summary in ordinary words: the question, one chart, the finding, and why it
+  matters. No background assumed.
+- [GLOSSARY.md](GLOSSARY.md) &mdash; every abbreviation this repo uses, defined.
+
+![license: MIT](https://img.shields.io/badge/license-MIT-blue) ![python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue) ![runtime dependencies: none](https://img.shields.io/badge/runtime%20dependencies-none-brightgreen) ![LLM results: Qwen3 8B+14B pairs](https://img.shields.io/badge/LLM%20results-Qwen3%208B%2B14B%20pairs-blue)
 
 trialgauntlet is a small agent **reliability** harness. Most agent evaluations report pass@1 on a
 stochastic setup, which averages over inconsistency: an agent that solves every task half the time and an
@@ -26,21 +34,83 @@ agent that solves half the tasks every time look identical. This harness
 
 ## LLM results
 
-<!-- LLM:BEGIN -->
-**LLM results: NOT YET RUN.**
+**LLM results: Qwen3 stock vs ablated pairs at 8B and 14B, plus a Qwen3-4B stock row, n=4 trials/task,
+k=2.** Pre-registered: `--env all --n 4 --k 2`, sampling temperature 0.7, top-p 0.8, top-k 20, Q8_0 GGUFs
+served under llama.cpp HIP on AMD gfx906, every arm driven from the shared Qwen3 chat template file
+(`gguf/qwen3-chat-template.jinja`, sha256-16 `a55ee1b1660128b7`), `parse_text_tools` off. Full results:
+`results/qwen3-{4b,8b,14b}-{stock,ablated}-n4.json`. `outcome-only` ignores policy violations;
+`viol/trial` is mean policy violations per trial in that environment.
 
-| model | env | pass@1 | pass@4 | pass^4 | gap |
-|---|---|---|---|---|---|
-| (none) | fleet | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |
-| (none) | ledger | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |
-| (none) | config | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |
+<!-- LLM:BEGIN -->
+| model | env | n | k | pass@1 | pass@k | pass^k | gap | outcome-only | viol/trial |
+|---|---|---|---|---|---|---|---|---|---|
+| qwen3-14b-ablated | config | 4 | 2 | 13.6% | 16.3% | 11.0% | 2.7% | 21.6% | 0.17 |
+| qwen3-14b-ablated | fleet | 4 | 2 | 46.6% | 50.0% | 43.3% | 3.4% | 66.3% | 0.46 |
+| qwen3-14b-ablated | ledger | 4 | 2 | 19.6% | 22.2% | 17.1% | 2.6% | 67.3% | 1.22 |
+| qwen3-14b-stock | config | 4 | 2 | 22.7% | 24.6% | 20.8% | 1.9% | 22.7% | 0.09 |
+| qwen3-14b-stock | fleet | 4 | 2 | 46.6% | 48.4% | 44.9% | 1.8% | 63.5% | 0.33 |
+| qwen3-14b-stock | ledger | 4 | 2 | 37.5% | 42.1% | 32.9% | 4.6% | 66.7% | 0.82 |
+| qwen3-4b-stock | config | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
+| qwen3-4b-stock | fleet | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
+| qwen3-4b-stock | ledger | 4 | 2 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.00 |
+| qwen3-4b-stock-native | config | 4 | 2 | 1.1% | 1.9% | 0.4% | 0.8% | 7.4% | 0.57 |
+| qwen3-4b-stock-native | fleet | 4 | 2 | 28.8% | 37.2% | 20.5% | 8.3% | 29.8% | 0.12 |
+| qwen3-4b-stock-native | ledger | 4 | 2 | 3.6% | 4.8% | 2.4% | 1.2% | 3.6% | 0.12 |
+| qwen3-8b-ablated | config | 4 | 2 | 5.7% | 11.4% | 0.0% | 5.7% | 15.9% | 0.59 |
+| qwen3-8b-ablated | fleet | 4 | 2 | 54.3% | 68.9% | 39.7% | 14.6% | 55.3% | 0.06 |
+| qwen3-8b-ablated | ledger | 4 | 2 | 42.9% | 57.9% | 27.8% | 15.1% | 42.9% | 0.01 |
+| qwen3-8b-stock | config | 4 | 2 | 15.3% | 22.7% | 8.0% | 7.4% | 19.9% | 0.21 |
+| qwen3-8b-stock | fleet | 4 | 2 | 55.3% | 70.5% | 40.1% | 15.2% | 56.2% | 0.04 |
+| qwen3-8b-stock | ledger | 4 | 2 | 42.9% | 56.7% | 29.0% | 13.9% | 43.5% | 0.02 |
 <!-- LLM:END -->
 
-No result file for a real model exists in this repository yet, so there is nothing to report. The adapter
+Policy violations per trial, trial-weighted over the whole benchmark (552 trials per arm):
+8B **stock 0.09 vs ablated 0.21**; 14B **stock 0.40 vs ablated 0.60**. Share of trials with at least one
+violation: 8B 8.3% vs 19.2%; 14B 27.2% vs 41.3%.
+Tool misuse per trial: 8B 0.00 vs 0.01; 14B 0.09 vs 0.23.
+Steps per trial: 8B 4.1 vs 4.1; 14B 7.0 vs 6.6.
+
+> **Correction (2026-10-18).** An earlier version of this section called 20.4% (stock) and 52.8% (ablated)
+> the 8B pair's "overall policy-violation rate across the whole benchmark". Those were the `config`
+> environment's share of trials with at least one violation (0.21 and 0.59 violations per trial), not
+> benchmark-wide numbers, and the
+> tool-misuse (0.01 / 0.04) and steps (4.4) figures in the same sentence were config-only too. The
+> trial-weighted figures above replace them. No pass metric changed.
+
+Read, 8B: pass@1 is statistically indistinguishable on `fleet` and `ledger` (ablated is not uniformly less
+capable), but on `config`, the hardest environment, where safe tool-use discipline matters most, the ablated
+arm drops to 5.7% pass@1 and 0.0% pass^2. Outcome-only on config is 19.9% stock vs 15.9% ablated, so about
+4 pp of the gap is raw competence and the remaining roughly 9.6 pp is policy violations committed during
+otherwise-correct trajectories. Caveat: both 8B arms ended 30% of trials in `no_action` (167 of 552 stock,
+171 ablated), and a trial with no actions cannot violate anything, which deflates the 8B violation counts.
+
+Read, 14B: outcome-only is indistinguishable between arms on all three environments (config 22.7% vs
+21.6%, fleet 63.5% vs 66.3%, ledger 66.7% vs 67.3%), so the ablated arm is not less competent. Its pass@1
+still falls on `config` (22.7% to 13.6%) and `ledger` (37.5% to 19.6%) and is flat on `fleet` (46.6% both):
+the whole drop is policy violations, which rise on every environment (config 0.09 to 0.17, fleet 0.33 to
+0.46, ledger 0.82 to 1.22 per trial) along with tool misuse on config (0.30 to 0.72). The 14B arms never
+end in `no_action` and take more steps than 8B (7.0 vs 4.1 per trial), which is also why 14B **stock**
+commits more violations per trial than 8B stock (0.40 vs 0.09): more actions, more chances to break a
+policy. The ablated-vs-stock spread is the comparison this benchmark is for; the across-size comparison is
+confounded by the no-action share.
+
+**Qwen3-4B stock: a format failure, not a capability result.** All 552 trials terminated `no_action`
+(0.0 steps per trial, 0.0% on every metric). Under the shared template the 4B model emitted its tool-call
+JSON as plain text without the opening `<tool_call>` tag, the server's tool parser therefore returned no
+tool calls, and with `parse_text_tools` off (the pre-registered setting) the harness recorded no action. **Under its own embedded template (`qwen3-4b-stock-native`, pre-registered in
+docs/METHODOLOGY.md before the run, served with `-c 32768 -np 4` after a context amendment), the same
+model does emit parsed tool calls: config 1.1% / fleet 28.8% / ledger 3.6% pass@1, outcome-only 7.4% /
+29.8% / 3.6%, policy violations 0.57 / 0.12 / 0.12 per trial. 373 of 552 trials still ended
+`no_action` (the model often answers in prose instead of calling a tool), so the row is a weak-capability
+result with a residual format component, not a clean capability number. It is compared with the 8B stock
+row, not with the 0% row, and it does not change any other row.**
+The row is kept as run. A rerun with the model's own template or with text-tool parsing enabled would be a
+new, separately pre-registered cell, not a replacement for this one.
+
+Everything below is for the built-in **non-LLM** agents, which are real and reproducible: rerun
+`scripts/regenerate_results.sh` and the committed files come out byte for byte the same. The adapter
 is tested against a scripted mock server (runs against it are labelled `MOCK` and say nothing about any
-model). Everything below is for the built-in **non-LLM** agents, which are real and reproducible: rerun
-`scripts/regenerate_results.sh` and the committed files come out byte for byte the same. To produce real
-results see [Run it against a local model](#run-it-against-a-local-model).
+model). To produce more LLM results see [Run it against a local model](#run-it-against-a-local-model).
 
 ## What is in the box
 

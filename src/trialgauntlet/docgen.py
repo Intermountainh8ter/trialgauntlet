@@ -100,13 +100,19 @@ def llm_block(results_dir: Path) -> str:
         rows = ["| model | env | pass@1 | pass@4 | pass^4 | gap |", "|---|---|---|---|---|---|"]
         rows += [f"| (none) | {e} | NOT YET RUN | NOT YET RUN | NOT YET RUN | NOT YET RUN |" for e in ENVS]
         return "**LLM results: NOT YET RUN.**\n\n" + "\n".join(rows)
-    rows = ["| model | env | n | k | pass@1 | pass@k | pass^k | gap |", "|---|---|---|---|---|---|---|---|"]
+    rows = [
+        "| model | env | n | k | pass@1 | pass@k | pass^k | gap | outcome-only | viol/trial |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
     for d in docs:
         for spec, s in d["environments"].items():
             m = s["metrics"]
+            outcome = _pct(m["outcome_only"]["value"]) if "outcome_only" in m else "n/a"
+            viol = s.get("reliability", {}).get("mean_policy_violations")
             rows.append(
                 f"| {d['agent']['name']} | {spec} | {s['n']} | {s['k']} | {_pct(m['pass@1']['value'])} "
-                f"| {_pct(m['pass@k']['value'])} | {_pct(m['pass^k']['value'])} | {_pct(m['gap']['value'])} |"
+                f"| {_pct(m['pass@k']['value'])} | {_pct(m['pass^k']['value'])} | {_pct(m['gap']['value'])} "
+                f"| {outcome} | {'n/a' if viol is None else f'{viol:.2f}'} |"
             )
     return "\n".join(rows)
 
