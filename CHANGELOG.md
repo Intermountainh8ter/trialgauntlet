@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+* First real LLM results, Qwen3 4B/8B/14B (stock and ablated pairs at 8B and 14B, plus a 4B stock row under
+  its own chat template), n=4 trials per task, k=2: `results/qwen3-*-n4.json` and the README section
+  "LLM results". The launch copy in `docs/launch/` now reports them, with the limits stated.
+* README correction (2026-10-18): an earlier policy-violation statement for the 8B pair used config-only
+  figures; the trial-weighted per-trial figures replaced it. No pass metric changed.
+* README and docs: fixed the stock-versus-ablated pass@1 gap decomposition (about 4 pp raw competence, about
+  6 pp policy violations of a roughly 9.6 pp gap) and the 4B stock tool-call count (13 executed in 552 trials).
+* Tests: the launch-copy guardrails now require that every LLM figure quoted in `docs/launch/` can be
+  recomputed from `results/*.json`.
+
 ## 0.1.0
 
 First release. Everything below is verified by the test suite (run on Python 3.10, 3.11, 3.12 and 3.13); no real LLM has been run.

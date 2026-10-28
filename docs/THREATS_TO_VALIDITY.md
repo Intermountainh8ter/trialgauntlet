@@ -9,7 +9,31 @@ What the numbers in this repository can and cannot support. Read this before quo
   reproducible with `scripts/regenerate_results.sh`.
 * The adapter and the reporting path against a **mock** server. Those runs are labelled MOCK and say
   nothing about any model.
-* **No real LLM has been run.** Every LLM-facing claim in this repository is about the plumbing.
+* **Real Qwen3 runs**, once each: 4B stock (plus a 4B stock row under the model's own chat template), and
+  stock/ablated pairs at 8B and 14B, all with n=4 trials per task and k=2 on all 138 tasks, temperature 0.7,
+  Q8_0 GGUFs served by llama.cpp (HIP) on one AMD gfx906 machine. See the next section for what they cannot
+  support.
+
+## What the Qwen3 runs can and cannot support
+
+* **One machine, one run configuration, one model family.** Qwen3 only, one quantization, one sampling
+  setting, one server build. Nothing here says how other models, quantizations or servers behave.
+* **n=4 is small.** Per-cell differences are noisy. The 95% intervals (cluster bootstrap over tasks, in the
+  result files) overlap for every stock-versus-ablated pair, including the largest pass@1 differences (8B
+  `config`, 14B `ledger`). Read those as leads for a larger run, not as established effects. pass^2 from four
+  trials is an estimate of a quantity that wants more.
+* **The no-action share confounds size comparisons.** About 30% of 8B trials ended in `no_action` (167 of 552
+  stock, 171 ablated) and none of the 14B trials did, so 8B versus 14B compares different behaviour as much
+  as different capability. A trial that takes no action cannot violate a policy.
+* **The 4B stock row is a template and format artefact.** Under the shared chat template the model's tool
+  calls were not parsed (all 552 trials ended in `no_action`, 13 tool calls executed in total). The row is
+  kept as run. Under its own embedded template the same model produced parsed tool calls but 373 of 552
+  trials still ended in `no_action`, so that row is a weak result with a residual format component.
+* **The graders and the oracle were written by the same author**, and the scripted users are keyword rules.
+  A model-level difference on these environments may reflect that author's policy choices.
+* **The exact checkpoints are not recorded in the repository** for the 8B and 14B arms; the result files
+  carry the served aliases and sampling settings only. Raw trajectories are not committed.
+* **Injection and fault suites were not run on any model.** They have only been run with scripted agents.
 
 ## Construct validity: do the environments measure reliability?
 
@@ -99,8 +123,9 @@ What the numbers in this repository can and cannot support. Read this before quo
 
 ## Things that were not done
 
-* No real LLM result exists. The README says so and `trialgauntlet report` prints "LLM results: NOT YET RUN"
-  until a non-mock result file for a model is present.
+* No LLM result beyond the Qwen3 rows described above exists. `trialgauntlet report` and the generated
+  README table print an explicit "NOT YET RUN" skeleton when a results directory holds no non-mock result
+  file, so an unmeasured number is never left looking measured.
 * The Windows PowerShell commands in the README were written from llama.cpp documentation and the
   author's setup notes; they were not executed on Windows or against Qwen3-Coder during development.
 * The Dockerfile was written but its build is not part of the test suite.
