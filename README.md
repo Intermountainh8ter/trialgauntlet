@@ -77,11 +77,16 @@ Steps per trial: 8B 4.1 vs 4.1; 14B 7.0 vs 6.6.
 > tool-misuse (0.01 / 0.04) and steps (4.4) figures in the same sentence were config-only too. The
 > trial-weighted figures above replace them. No pass metric changed.
 
+Intervals: the result files carry 95% cluster-bootstrap intervals over tasks (1,000 resamples). For every
+stock-vs-ablated pair the pass@1 intervals overlap, including 8B `config` (15.3%, 8.0% to 24.4% stock vs 5.7%,
+2.8% to 9.1% ablated) and 14B `ledger` (37.5%, 24.4% to 51.8% vs 19.6%, 9.5% to 32.1%). With n=4 trials on
+42 to 52 tasks per environment, read each difference below as a lead worth a larger run, not a settled effect.
+
 Read, 8B: pass@1 is statistically indistinguishable on `fleet` and `ledger` (ablated is not uniformly less
 capable), but on `config`, the hardest environment, where safe tool-use discipline matters most, the ablated
 arm drops to 5.7% pass@1 and 0.0% pass^2. Outcome-only on config is 19.9% stock vs 15.9% ablated, so about
-4 pp of the gap is raw competence and the remaining roughly 9.6 pp is policy violations committed during
-otherwise-correct trajectories. Caveat: both 8B arms ended 30% of trials in `no_action` (167 of 552 stock,
+4 pp of the roughly 9.6 pp pass@1 gap is raw competence and the remaining roughly 6 pp is policy violations
+committed during otherwise-correct trajectories. Caveat: both 8B arms ended 30% of trials in `no_action` (167 of 552 stock,
 171 ablated), and a trial with no actions cannot violate anything, which deflates the 8B violation counts.
 
 Read, 14B: outcome-only is indistinguishable between arms on all three environments (config 22.7% vs
@@ -95,9 +100,10 @@ policy. The ablated-vs-stock spread is the comparison this benchmark is for; the
 confounded by the no-action share.
 
 **Qwen3-4B stock: a format failure, not a capability result.** All 552 trials terminated `no_action`
-(0.0 steps per trial, 0.0% on every metric). Under the shared template the 4B model emitted its tool-call
-JSON as plain text without the opening `<tool_call>` tag, the server's tool parser therefore returned no
-tool calls, and with `parse_text_tools` off (the pre-registered setting) the harness recorded no action. **Under its own embedded template (`qwen3-4b-stock-native`, pre-registered in
+(0.0% on every metric; 13 tool calls were executed in total across the 552 trials, all of them in `fleet`).
+Under the shared template the 4B model emitted its tool-call
+JSON as plain text without the opening `<tool_call>` tag, the server's tool parser therefore returned
+(almost) no tool calls, and with `parse_text_tools` off (the pre-registered setting) the harness recorded no action. **Under its own embedded template (`qwen3-4b-stock-native`, pre-registered in
 docs/METHODOLOGY.md before the run, served with `-c 32768 -np 4` after a context amendment), the same
 model does emit parsed tool calls: config 1.1% / fleet 28.8% / ledger 3.6% pass@1, outcome-only 7.4% /
 29.8% / 3.6%, policy violations 0.57 / 0.12 / 0.12 per trial. 373 of 552 trials still ended
@@ -358,7 +364,8 @@ solvable-versus-unsolvable slices.
 src/trialgauntlet/   core (runner, metrics, trajectories), envs/ (fleet, ledger, config, wrappers),
                      agents/ (baselines, scripted agents, LLM adapter), audit, report, mock server, cli
 tests/               unit tests, property tests of the estimators, per-environment semantics, mock-server tests
-results/             committed result files of the non-LLM agents (regenerate: scripts/regenerate_results.sh)
+results/             committed result files: non-LLM agents (regenerate: scripts/regenerate_results.sh) and the
+                     real Qwen3 runs (qwen3-*-n4.json, not regenerable without the model servers)
 docs/                METHODOLOGY, ENVIRONMENTS, SUITES, THREATS_TO_VALIDITY, FLOWCHARTS, launch copy
 ```
 
