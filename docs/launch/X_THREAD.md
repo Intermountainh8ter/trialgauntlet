@@ -7,7 +7,7 @@ and matches the README tables. The runs are real Qwen3 runs; the limits are stat
 
 1/ Most agent evals report pass@1 on a stochastic setup, which hides inconsistency. I built a tiny harness that reports pass^k (all k trials succeed) next to pass@k, with scripted users and code graders, no LLM judge. Then I ran real Qwen3 models through it.
 
-2/ First, audit the benchmark. No-op, random-tool and always-refuse baselines pass at most 0.7% on my three environments (138 tasks). A deliberately naive grader lets the do-nothing agent pass 30.8%, 35.7% and 36.4%. Against the real graders: 0%.
+2/ First, audit the benchmark. No-op, random-tool and always-refuse baselines pass at most 0.7% on my three environments (138 tasks). A deliberately naive grader lets the do-nothing agent pass 30.8%, 35.7% and 36.4%.
 
 3/ Qwen3 4B/8B/14B, Q8_0 on llama.cpp, one AMD gfx906 box, temp 0.7, n=4 trials per task, k=2. pass^2 sits below pass@1 in every cell that passes anything. 8B stock: fleet 55.3% -> 40.1%, ledger 42.9% -> 29.0%. 14B gaps are 1.8 to 4.6 points.
 
