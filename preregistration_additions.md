@@ -63,3 +63,21 @@ or above 1.0.
 **Falsifier.** A ratio of 1.25 or more, or below 1.0.
 
 **Run.** `python3 scripts/ci_width.py --seed 7 --k 8 --n-list 8,16,32,64 --boot 1000 --out results/40-ci-width.json`
+
+## 2026-11-11T10:00:29Z heterogeneity-gap proposal:419b1a94be9f9947e5918bd0bdfa34591b8fcb97f26afda735336b7493de91cc
+
+**Hypothesis.** At matched pooled pass@1 on the shipped seeded fleet, ledger and config task sets (seed 7, n=16
+trials per task, 1000 task-level bootstrap resamples), the absolute difference between the pass^4 gap versus p^4 of
+two SIMULATED generators (iid trials with tier-spread difficulty, and homogeneous sticky Markov trials with rho
+calibrated by deterministic grid search) is at most 0.03 while each gap's 95% interval excludes zero, so the gap
+column cannot tell heterogeneity from within-task correlation; the lag-1 within-task autocorrelation of trial
+outcomes differs between the generators by at least 0.15.
+
+**Metric.** `/heterogeneity_gap/k_4` in `results/91-heterogeneity-gap.json`.
+
+**Expected.** Absolute difference in pass^4 gap between generators is at most 0.03.
+
+**Falsifier.** Absolute pass^4 gap difference above 0.03 after calibration, or either gap interval including zero,
+or lag-1 autocorrelation difference below 0.15.
+
+**Run.** `python3 scripts/heterogeneity_gap.py --seed 7 --n 16 --k-max 8 --boot 1000 --out results/91-heterogeneity-gap.json`

@@ -1,0 +1,205 @@
+{
+  "calibrated_rho": 0.36,
+  "config": {
+    "boot": 1000,
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k_calibrated": 4,
+    "k_max": 8,
+    "n": 16,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "generators": {
+    "iid_tier_spread": {
+      "by_k": {
+        "1": {
+          "gap": 0.0,
+          "gap_ci95": [
+            0.0,
+            0.0
+          ],
+          "p_pow_k": 0.794837,
+          "pass_hat": 0.794837
+        },
+        "2": {
+          "gap": 0.022461,
+          "gap_ci95": [
+            0.015989,
+            0.028331
+          ],
+          "p_pow_k": 0.631766,
+          "pass_hat": 0.654227
+        },
+        "3": {
+          "gap": 0.051938,
+          "gap_ci95": [
+            0.037791,
+            0.064355
+          ],
+          "p_pow_k": 0.502151,
+          "pass_hat": 0.554089
+        },
+        "4": {
+          "gap": 0.080674,
+          "gap_ci95": [
+            0.059775,
+            0.098895
+          ],
+          "p_pow_k": 0.399128,
+          "pass_hat": 0.479802
+        },
+        "5": {
+          "gap": 0.105266,
+          "gap_ci95": [
+            0.078704,
+            0.127723
+          ],
+          "p_pow_k": 0.317242,
+          "pass_hat": 0.422508
+        },
+        "6": {
+          "gap": 0.124645,
+          "gap_ci95": [
+            0.093952,
+            0.151625
+          ],
+          "p_pow_k": 0.252155,
+          "pass_hat": 0.376801
+        },
+        "7": {
+          "gap": 0.138895,
+          "gap_ci95": [
+            0.104971,
+            0.169684
+          ],
+          "p_pow_k": 0.200422,
+          "pass_hat": 0.339317
+        },
+        "8": {
+          "gap": 0.148602,
+          "gap_ci95": [
+            0.112096,
+            0.181885
+          ],
+          "p_pow_k": 0.159303,
+          "pass_hat": 0.307905
+        }
+      },
+      "lag1_autocorr": -0.063855,
+      "pooled_pass1": 0.794837
+    },
+    "sticky_markov": {
+      "by_k": {
+        "1": {
+          "gap": 0.0,
+          "gap_ci95": [
+            0.0,
+            0.0
+          ],
+          "p_pow_k": 0.784873,
+          "pass_hat": 0.784873
+        },
+        "2": {
+          "gap": 0.013141,
+          "gap_ci95": [
+            0.007874,
+            0.017941
+          ],
+          "p_pow_k": 0.616026,
+          "pass_hat": 0.629167
+        },
+        "3": {
+          "gap": 0.030939,
+          "gap_ci95": [
+            0.019312,
+            0.041891
+          ],
+          "p_pow_k": 0.483502,
+          "pass_hat": 0.514441
+        },
+        "4": {
+          "gap": 0.048876,
+          "gap_ci95": [
+            0.03111,
+            0.065752
+          ],
+          "p_pow_k": 0.379488,
+          "pass_hat": 0.428364
+        },
+        "5": {
+          "gap": 0.064809,
+          "gap_ci95": [
+            0.042034,
+            0.087348
+          ],
+          "p_pow_k": 0.29785,
+          "pass_hat": 0.362659
+        },
+        "6": {
+          "gap": 0.077943,
+          "gap_ci95": [
+            0.050691,
+            0.104614
+          ],
+          "p_pow_k": 0.233774,
+          "pass_hat": 0.311717
+        },
+        "7": {
+          "gap": 0.088201,
+          "gap_ci95": [
+            0.05784,
+            0.118399
+          ],
+          "p_pow_k": 0.183483,
+          "pass_hat": 0.271685
+        },
+        "8": {
+          "gap": 0.095846,
+          "gap_ci95": [
+            0.063118,
+            0.128945
+          ],
+          "p_pow_k": 0.144011,
+          "pass_hat": 0.239857
+        }
+      },
+      "lag1_autocorr": 0.28321,
+      "pooled_pass1": 0.784873
+    }
+  },
+  "heterogeneity_gap": {
+    "k_1": 0.0,
+    "k_2": 0.009321,
+    "k_3": 0.020999,
+    "k_4": 0.031797,
+    "k_5": 0.040457,
+    "k_6": 0.046702,
+    "k_7": 0.050693,
+    "k_8": 0.052756
+  },
+  "label": "SIMULATED: iid tier-spread trials vs homogeneous sticky Markov trials at matched pooled pass@1",
+  "lag1_autocorr_abs_diff": 0.347065,
+  "provenance": {
+    "command": "python3 scripts/heterogeneity_gap.py --seed 7 --n 16 --k-max 8 --boot 1000 --out results/91-heterogeneity-gap.json",
+    "data_sources": [
+      {
+        "license": "MIT (concept reference only; no data used, SIMULATED outcomes)",
+        "url": "https://github.com/sierra-research/tau-bench"
+      }
+    ],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-11T10:00:29Z",
+    "wall_s": 2.343
+  },
+  "tasks": 138
+}
