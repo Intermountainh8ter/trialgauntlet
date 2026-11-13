@@ -81,3 +81,19 @@ outcomes differs between the generators by at least 0.15.
 or lag-1 autocorrelation difference below 0.15.
 
 **Run.** `python3 scripts/heterogeneity_gap.py --seed 7 --n 16 --k-max 8 --boot 1000 --out results/91-heterogeneity-gap.json`
+
+## 2026-11-13T11:32:48Z flip-passk-sesoi proposal:b972c8403b8d3f2d79bba9bd04c593e85a2aeff25305ac572e7e677b4bc9ee0b
+
+**Hypothesis.** With a symmetric per-trial outcome flip at the largest of three mock rates applied to the
+SIMULATED tier-dependent oracle (n=8 trials per task, 138 task seeds, seed 11), pass^k falls below the flip-free
+curve by more than a pre-stated SESOI of 0.05 at some k no larger than 4, and the first-divergence k never
+increases as the flip rate grows.
+
+**Metric.** `/flip_passk/k_first_divergent` in `results/150-flip-passk-sesoi-mock.json` (largest flip rate).
+
+**Expected.** k_first_divergent at the largest flip rate is at most 4 (range 1 to 4).
+
+**Falsifier.** At the largest flip rate no k in 1..8 has a pass^k gap to the flip-free curve above 0.05 with k<=4,
+or the first-divergence k increases as the flip rate grows.
+
+**Run.** `python3 scripts/flip_passk_sesoi.py --seed 11 --out results/150-flip-passk-sesoi-mock.json`

@@ -1,0 +1,125 @@
+{
+  "config": {
+    "flip_rates": [
+      0.02,
+      0.05,
+      0.1
+    ],
+    "k_limit": 4,
+    "k_max": 8,
+    "n": 8,
+    "sesoi": 0.05,
+    "tasks": 138,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "flip_free_pass_hat": [
+    0.769022,
+    0.619048,
+    0.516304,
+    0.442857,
+    0.388587,
+    0.347308,
+    0.315217,
+    0.289855
+  ],
+  "flip_passk": {
+    "by_rate": {
+      "0.02": {
+        "gap_to_flip_free": [
+          0.019022,
+          0.032091,
+          0.041667,
+          0.048965,
+          0.054607,
+          0.059006,
+          0.0625,
+          0.065217
+        ],
+        "k_first_divergent": null,
+        "pass_hat": [
+          0.75,
+          0.586957,
+          0.474638,
+          0.393892,
+          0.33398,
+          0.288302,
+          0.252717,
+          0.224638
+        ]
+      },
+      "0.05": {
+        "gap_to_flip_free": [
+          0.043478,
+          0.073758,
+          0.095885,
+          0.11294,
+          0.126812,
+          0.138716,
+          0.149457,
+          0.15942
+        ],
+        "k_first_divergent": 2,
+        "pass_hat": [
+          0.725543,
+          0.54529,
+          0.420419,
+          0.329917,
+          0.261775,
+          0.208592,
+          0.165761,
+          0.130435
+        ]
+      },
+      "0.1": {
+        "gap_to_flip_free": [
+          0.076087,
+          0.127329,
+          0.161232,
+          0.182609,
+          0.194876,
+          0.200828,
+          0.202899,
+          0.202899
+        ],
+        "k_first_divergent": 1,
+        "pass_hat": [
+          0.692935,
+          0.491718,
+          0.355072,
+          0.260248,
+          0.193711,
+          0.14648,
+          0.112319,
+          0.086957
+        ]
+      }
+    },
+    "first_divergence_non_increasing_in_rate": true,
+    "k_first_divergent": 1,
+    "k_first_divergent_by_rate": {
+      "0.02": null,
+      "0.05": 2,
+      "0.1": 1
+    }
+  },
+  "label": "SIMULATED tier-dependent oracle with a MOCK symmetric per-trial flip; no model was run",
+  "provenance": {
+    "command": "python3 scripts/flip_passk_sesoi.py --seed 11 --out results/150-flip-passk-sesoi-mock.json",
+    "data_sources": [
+      {
+        "license": "MIT (reference only; no data used, all trials simulated)",
+        "url": "https://github.com/ggml-org/llama.cpp/issues/22450"
+      }
+    ],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      11
+    ],
+    "started_at": "2026-11-13T11:33:39Z",
+    "wall_s": 0.004
+  }
+}
