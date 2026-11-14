@@ -1,0 +1,59 @@
+{
+  "config": {
+    "boot": 1000,
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k": 4,
+    "n": 8,
+    "tasks": 138,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "interval_width_ratio": {
+    "hierarchical_over_task_k4": 1.117042,
+    "task_over_rollout_k4": 1.551408
+  },
+  "label": "SIMULATED noisy oracle (seeded Bernoulli by tier); pass^k interval width by bootstrap scheme",
+  "provenance": {
+    "command": "python3 scripts/boot_scheme.py --seed 7 --n 8 --k 4 --boot 1000 --out results/176-boot-scheme.json",
+    "data_sources": [],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-14T11:49:02Z",
+    "wall_s": 0.92
+  },
+  "schemes": {
+    "hierarchical": {
+      "ci95": [
+        0.493685,
+        0.628054
+      ],
+      "mean_pass_hat": 0.502484,
+      "width": 0.134369
+    },
+    "rollout": {
+      "ci95": [
+        0.51853,
+        0.596066
+      ],
+      "mean_pass_hat": 0.502484,
+      "width": 0.077536
+    },
+    "task": {
+      "ci95": [
+        0.443064,
+        0.563354
+      ],
+      "mean_pass_hat": 0.502484,
+      "width": 0.12029
+    }
+  }
+}

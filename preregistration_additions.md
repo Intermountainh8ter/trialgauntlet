@@ -97,3 +97,17 @@ increases as the flip rate grows.
 or the first-divergence k increases as the flip rate grows.
 
 **Run.** `python3 scripts/flip_passk_sesoi.py --seed 11 --out results/150-flip-passk-sesoi-mock.json`
+
+## 2026-11-14T11:49:02Z boot-scheme proposal:220804cc49966eb6837b6442a5b9b16102bd146795b0e7b22dbd164e2fb15b23
+
+**Hypothesis.** On the SIMULATED noisy oracle (tier p 0.95/0.85/0.60, 138 tasks, n=8, k=4, 1000 resamples, seed 7),
+the task-resampling 95% interval of mean pass^k is wider than the within-task rollout-resampling interval by a ratio
+of at least 3.
+
+**Metric.** `/interval_width_ratio/task_over_rollout_k4` in `results/176-boot-scheme.json`.
+
+**Expected.** Ratio of task-resampling width over rollout-resampling width at k=4 is at least 3.0 (range 3.0 to 20.0).
+
+**Falsifier.** A task-over-rollout width ratio below 3.0 at k=4 under the pre-registered configuration.
+
+**Run.** `python3 scripts/boot_scheme.py --seed 7 --n 8 --k 4 --boot 1000 --out results/176-boot-scheme.json`
