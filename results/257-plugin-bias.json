@@ -1,0 +1,74 @@
+{
+  "by_n": {
+    "16": {
+      "plugin_bias": 0.028194,
+      "true_mean": 0.473143,
+      "unbiased_error": 0.000251
+    },
+    "32": {
+      "plugin_bias": 0.0138,
+      "true_mean": 0.473143,
+      "unbiased_error": -0.000342
+    },
+    "4": {
+      "plugin_bias": 0.106185,
+      "true_mean": 0.473143,
+      "unbiased_error": 0.001277
+    },
+    "8": {
+      "plugin_bias": 0.054699,
+      "true_mean": 0.473143,
+      "unbiased_error": -0.000372
+    }
+  },
+  "config": {
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k": 4,
+    "ns": [
+      4,
+      8,
+      16,
+      32
+    ],
+    "reps": 200,
+    "tasks": 138,
+    "tier_p": {
+      "T1": 0.95,
+      "T2": 0.85,
+      "T3": 0.6
+    }
+  },
+  "label": "SIMULATED tier-dependent oracle (seeded Bernoulli); plug-in vs unbiased pass^k estimator bias",
+  "plugin_bias": {
+    "n16_k4": 0.028194,
+    "n32_k4": 0.0138,
+    "n4_k4": 0.106185,
+    "n8_k4": 0.054699
+  },
+  "plugin_bias_monotone_decreasing": true,
+  "provenance": {
+    "command": "python3 scripts/plugin_bias.py --seed 7 --k 4 --reps 200 --out results/257-plugin-bias.json",
+    "data_sources": [
+      {
+        "license": "arXiv paper, definition of pass^k only; outcomes are simulated",
+        "url": "https://arxiv.org/abs/2406.12045"
+      }
+    ],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-16T14:53:32Z",
+    "wall_s": 0.189
+  },
+  "unbiased_error": {
+    "n16_k4": 0.000251,
+    "n32_k4": -0.000342,
+    "n4_k4": 0.001277,
+    "n8_k4": -0.000372
+  }
+}

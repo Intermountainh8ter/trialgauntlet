@@ -111,3 +111,17 @@ of at least 3.
 **Falsifier.** A task-over-rollout width ratio below 3.0 at k=4 under the pre-registered configuration.
 
 **Run.** `python3 scripts/boot_scheme.py --seed 7 --n 8 --k 4 --boot 1000 --out results/176-boot-scheme.json`
+
+## 2026-11-16T14:53:32Z plugin-bias proposal:e6566fa909c5fb0a8bd4ec73564a81194549ec96c168340a290d2335116127e9
+
+**Hypothesis.** On the SIMULATED tier-dependent oracle (tier p 0.95/0.85/0.60, 138 task seeds, k=4, seed 7, 200 replications per n),
+the mean plug-in estimator (c/n)^k exceeds the true mean p^k by at least 0.04 at n=8, while the unbiased C(c,k)/C(n,k)
+estimator's mean error stays within 0.01 of zero in absolute value, and the plug-in bias shrinks monotonically over n in 4,8,16,32.
+
+**Metric.** `/plugin_bias/n8_k4` in `results/257-plugin-bias.json`.
+
+**Expected.** Plug-in bias at n=8, k=4 is at least 0.04 (range 0.04 to 0.15).
+
+**Falsifier.** Plug-in bias at n=8, k=4 below 0.04, or unbiased mean error above 0.01 in absolute value, or plug-in bias not monotonically decreasing in n.
+
+**Run.** `python3 scripts/plugin_bias.py --seed 7 --k 4 --reps 200 --out results/257-plugin-bias.json`
