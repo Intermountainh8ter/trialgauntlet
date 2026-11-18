@@ -125,3 +125,15 @@ estimator's mean error stays within 0.01 of zero in absolute value, and the plug
 **Falsifier.** Plug-in bias at n=8, k=4 below 0.04, or unbiased mean error above 0.01 in absolute value, or plug-in bias not monotonically decreasing in n.
 
 **Run.** `python3 scripts/plugin_bias.py --seed 7 --k 4 --reps 200 --out results/257-plugin-bias.json`
+
+## 2026-11-18T18:17:02Z closed-form-floor proposal:2cd2352e2fa34a0640b748f6f2dff2ff2c8fbe2d15d56f230795d6ee7c6f3aa5
+
+**Hypothesis.** For the shipped seeded random-category escalate-guesser under category-only grading on the escalation-required tasks, the closed-form per-task expectation (mean over tasks of q^k, q the probability the uniform category guess hits the expected category) matches a fresh seeded n=32 measurement within 0.01 absolute at every k from 1 to 8.
+
+**Metric.** `/floor/max_abs_deviation_category_only` in `results/429-closed-form-floor.json`.
+
+**Expected.** Maximum absolute deviation over k=1..8 is at most 0.01 (range 0.0 to 0.01).
+
+**Falsifier.** A maximum absolute deviation above 0.01 at any k in 1..8, or a measured pass@1 whose 95% interval excludes the closed-form value.
+
+**Run.** `python3 scripts/closed_form_floor.py --seed 7 --n 32 --k-max 8 --out results/429-closed-form-floor.json`

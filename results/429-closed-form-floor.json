@@ -1,0 +1,67 @@
+{
+  "config": {
+    "envs": [
+      "fleet",
+      "ledger",
+      "config"
+    ],
+    "k_max": 8,
+    "n": 32,
+    "n_boot": 1000,
+    "tasks": 47
+  },
+  "floor": {
+    "abs_deviation": {
+      "1": 0.011968,
+      "2": 0.006434,
+      "3": 0.00258,
+      "4": 0.000933,
+      "5": 0.000324,
+      "6": 0.000109,
+      "7": 3.6e-05,
+      "8": 1.1e-05
+    },
+    "closed_form_pass_hat_k": {
+      "1": 0.25,
+      "2": 0.0625,
+      "3": 0.015625,
+      "4": 0.003906,
+      "5": 0.000977,
+      "6": 0.000244,
+      "7": 6.1e-05,
+      "8": 1.5e-05
+    },
+    "max_abs_deviation_category_only": 0.011968,
+    "measured_pass_at_1_ci95": [
+      0.218085,
+      0.257979
+    ],
+    "measured_pass_hat_k": {
+      "1": 0.238032,
+      "2": 0.056066,
+      "3": 0.013045,
+      "4": 0.002973,
+      "5": 0.000653,
+      "6": 0.000135,
+      "7": 2.5e-05,
+      "8": 4e-06
+    },
+    "pass_at_1_in_ci95": true
+  },
+  "label": "closed-form vs measured category-only pass^k of the seeded random-category escalate-guesser (no LLM)",
+  "provenance": {
+    "command": "python3 scripts/closed_form_floor.py --seed 7 --n 32 --k-max 8 --out results/429-closed-form-floor.json",
+    "data_sources": [
+      {
+        "license": "arXiv preprint, definition of pass^k only; no data used",
+        "url": "https://arxiv.org/pdf/2406.12045"
+      }
+    ],
+    "hardware": "x86_64 Linux python 3.11.2, cpu only",
+    "seeds": [
+      7
+    ],
+    "started_at": "2026-11-18T18:17:08Z",
+    "wall_s": 0.997
+  }
+}
