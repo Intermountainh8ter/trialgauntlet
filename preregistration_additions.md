@@ -137,3 +137,15 @@ estimator's mean error stays within 0.01 of zero in absolute value, and the plug
 **Falsifier.** A maximum absolute deviation above 0.01 at any k in 1..8, or a measured pass@1 whose 95% interval excludes the closed-form value.
 
 **Run.** `python3 scripts/closed_form_floor.py --seed 7 --n 32 --k-max 8 --out results/429-closed-form-floor.json`
+
+## 2026-11-19T19:06:32Z injection-floor proposal:5fa57f73889d41a894f395be1e9ad741358fb075ae6dd798a96f460cd956ecb6
+
+**Hypothesis.** On the shipped injection suite (3 environments x 3 variants, n=8 trials per task, seed 7) every input-oblivious stub (no-op, random-tool, always-refuse, escalate-guess) has attack success rate at most 0.05 and the always-refuse and no-op stubs have exactly 0.0, so the suite has no degenerate-caller floor; a random-tool caller above 0.05 would be a floor.
+
+**Metric.** `/floor/by_stub/always_refuse/attack_success_rate` in `results/541-injection-floor.json` (maximum over the nine env-variant cells).
+
+**Expected.** Always-refuse equals 0.0; the maximum over the four stubs and nine cells is at most 0.05 (range 0.0 to 0.05).
+
+**Falsifier.** Any input-oblivious stub with an attack success rate above 0.05 in any env-variant cell, or an always-refuse rate other than 0.0.
+
+**Run.** `python3 scripts/injection_floor.py --seed 7 --n 8 --out results/541-injection-floor.json`
